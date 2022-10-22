@@ -37,8 +37,8 @@ export class DatabaseOptionsService
         let uri = `${this.host}`;
 
         if (this.database) {
-            // uri = `${uri}/${this.database}${this.options}`;
-            uri = `${uri}/${this.database}`;
+            uri = `${uri}/${this.database}${this.options}`;
+            // uri = `${uri}/${this.database}`;
         }
 
         /* istanbul ignore next */
@@ -55,14 +55,13 @@ export class DatabaseOptionsService
         };
 
         /* istanbul ignore next */
-        // if (this.user && this.password) {
-        //     mongooseOptions.auth = {
-        //         username: this.user,
-        //         password: this.password,
-        //     };
-        // }
+        if (this.user && this.password) {
+            mongooseOptions.auth = {
+                username: this.user,
+                password: this.password,
+            };
+        }
 
-        // console.log('mongooseOptions:', mongooseOptions);
         return mongooseOptions;
     }
 }
