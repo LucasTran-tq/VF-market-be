@@ -9,8 +9,6 @@ import { ENUM_USER_STATUS_CODE_ERROR } from 'src/modules/user/constants/user.sta
 @Injectable()
 export class UserNotFoundGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log('in UserNotFoundGuard');
-        
         const { __user } = context.switchToHttp().getRequest();
 
         if (!__user) {
