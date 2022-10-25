@@ -56,7 +56,7 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
         const firebaseUser: any = await this.defaultApp
             .auth()
             .getUser(decodeToken.user_id);
-        console.log('firebaseUser:', firebaseUser);
+        
 
         if (!firebaseUser) {
             throw new UnauthorizedException();

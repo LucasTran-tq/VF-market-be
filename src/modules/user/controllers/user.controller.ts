@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import {
     BadRequestException,
     Body,
@@ -367,59 +369,125 @@ export class UserController {
         };
     }
 
-    @AuthFirebaseGuard()
+    @Response('user.login', {
+        classSerialization: UserLoginSerialization,
+        doc: { statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS },
+    })
+    @Logger(ENUM_LOGGER_ACTION.LOGIN, { tags: ['login-firebase', 'google'] })
     @HttpCode(HttpStatus.OK)
+    @AuthFirebaseGuard()
     @Post('/login-google')
-    async loginGoogle(@User() { email }: Record<string, any>): Promise<void> {
-        // console.log('u:', u);
-
-        console.log('loginGoogle');
-
+    async loginGoogle(
+        @User() { email }: Record<string, any>
+    ): Promise<IResponse> {
         // * if user in database create token
         // * if not, create user
 
-        const user: IUserDocument =
-            await this.userService.findOne<IUserDocument>(
-                {
-                    email: email,
-                },
-                {
-                    populate: true,
-                }
-            );
-        // create token
+        let user: IUserDocument = await this.userService.findOne<IUserDocument>(
+            {
+                email: email,
+            },
+            {
+                populate: true,
+            }
+        );
 
         try {
             if (!user) {
-                const role: RoleDocument = await this.roleService.findOne<RoleDocument>(
-                    {
+                const role: RoleDocument =
+                    await this.roleService.findOne<RoleDocument>({
                         name: 'user',
-                    }
-                );
+                    });
                 if (!role) {
                     throw new NotFoundException({
-                        statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_NOT_FOUND_ERROR,
+                        statusCode:
+                            ENUM_ROLE_STATUS_CODE_ERROR.ROLE_NOT_FOUND_ERROR,
                         message: 'role.error.notFound',
                     });
                 }
 
-                // await this.userService.create({
-                //     firstName: body.firstName,
-                //     lastName: body.lastName,
-                //     email,
-                //     mobileNumber,
-                //     role: role._id,
-                //     password: password.passwordHash,
-                //     passwordExpired: password.passwordExpired,
-                //     salt: password.salt,
-                // });
+                await this.userService.createWithFirebase({
+                    email,
+                    role: role._id,
+                });
+
+                user = await this.userService.findOne<IUserDocument>(
+                    {
+                        email: email,
+                    },
+                    {
+                        populate: true,
+                    }
+                );
             }
 
-            
+            const payload: UserPayloadSerialization =
+                await this.userService.payloadSerialization(user);
+            const tokenType: string = await this.authService.getTokenType();
+            const expiresIn: number =
+                await this.authService.getAccessTokenExpirationTime();
+            const rememberMe: boolean = true;
+            const payloadAccessToken: Record<string, any> =
+                await this.authService.createPayloadAccessToken(
+                    payload,
+                    rememberMe
+                );
+            const payloadRefreshToken: Record<string, any> =
+                await this.authService.createPayloadRefreshToken(
+                    payload._id,
+                    rememberMe,
+                    {
+                        loginDate: payloadAccessToken.loginDate,
+                    }
+                );
 
+            const payloadHashedAccessToken =
+                await this.authService.encryptAccessToken(payloadAccessToken);
+            const payloadHashedRefreshToken =
+                await this.authService.encryptAccessToken(payloadRefreshToken);
 
+            const accessToken: string =
+                await this.authService.createAccessToken(
+                    payloadHashedAccessToken
+                );
 
-            // return;
+            const refreshToken: string =
+                await this.authService.createRefreshToken(
+                    payloadHashedRefreshToken,
+                    { rememberMe }
+                );
+
+            const checkPasswordExpired: boolean =
+                await this.authService.checkPasswordExpired(
+                    user.passwordExpired
+                );
+
+            if (checkPasswordExpired) {
+                return {
+                    metadata: {
+                        // override status code and message
+                        statusCode:
+                            ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
+                        message: 'user.error.passwordExpired',
+                    },
+                    tokenType,
+                    expiresIn,
+                    accessToken,
+                    refreshToken,
+                };
+            }
+
+            return {
+                metadata: {
+                    // override status code
+                    statusCode:
+                        ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS,
+                },
+                tokenType,
+                expiresIn,
+                accessToken,
+                refreshToken,
+            };
         } catch (err: any) {
             throw new InternalServerErrorException({
                 statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,

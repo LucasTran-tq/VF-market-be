@@ -6,28 +6,31 @@ import { RoleEntity } from 'src/modules/role/schemas/role.schema';
 @Schema({ timestamps: true, versionKey: false })
 export class UserEntity {
     @Prop({
-        required: true,
+        // required: true,
+        required: false,
         index: true,
         lowercase: true,
         trim: true,
     })
-    firstName: string;
+    firstName?: string;
 
     @Prop({
-        required: true,
+        // required: true,
+        required: false,
         index: true,
         lowercase: true,
         trim: true,
     })
-    lastName: string;
+    lastName?: string;
 
     @Prop({
-        required: true,
+        // required: true,
+        required: false,
         index: true,
         unique: true,
         trim: true,
     })
-    mobileNumber: string;
+    mobileNumber?: string;
 
     @Prop({
         required: true,
@@ -47,20 +50,23 @@ export class UserEntity {
     role: Types.ObjectId;
 
     @Prop({
-        required: true,
+        // required: true,
+        required: false,
     })
-    password: string;
+    password?: string;
 
     @Prop({
-        required: true,
+        // required: true,
+        required: false,
         index: true,
     })
-    passwordExpired: Date;
+    passwordExpired?: Date;
 
     @Prop({
-        required: true,
+        // required: true,
+        required: false,
     })
-    salt: string;
+    salt?: string;
 
     @Prop({
         required: true,
@@ -91,9 +97,9 @@ export type UserDocument = UserEntity & Document;
 
 // Hooks
 UserSchema.pre<UserDocument>('save', function (next) {
-    this.email = this.email.toLowerCase();
-    this.firstName = this.firstName.toLowerCase();
-    this.lastName = this.lastName.toLowerCase();
+    this.email = this.email?.toLowerCase();
+    this.firstName = this.firstName?.toLowerCase();
+    this.lastName = this.lastName?.toLowerCase();
 
     next();
 });
