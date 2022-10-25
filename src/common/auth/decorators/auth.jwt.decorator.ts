@@ -22,6 +22,8 @@ import {
 } from 'src/common/response/decorators/response.decorator';
 
 export function AuthJwtGuard(...permissions: ENUM_AUTH_PERMISSIONS[]): any {
+    console.log('in AuthJwtGuard');
+    
     return applyDecorators(
         ApiBearerAuth('accessToken'),
         ResponseDoc({

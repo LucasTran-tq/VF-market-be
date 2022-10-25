@@ -19,6 +19,7 @@ import {
     AuthJwtGuard,
     AuthRefreshJwtGuard,
 } from 'src/common/auth/decorators/auth.jwt.decorator';
+import { AuthFirebaseGuard } from 'src/common/auth/decorators/auth.firebase.decorator';
 import { AuthService } from 'src/common/auth/services/auth.service';
 import { AwsS3Serialization } from 'src/common/aws/serializations/aws.s3.serialization';
 import { AwsS3Service } from 'src/common/aws/services/aws.s3.service';
@@ -45,12 +46,17 @@ import { GetUser } from 'src/modules/user/decorators/user.decorator';
 import { UserProfileGuard } from 'src/modules/user/decorators/user.public.decorator';
 import { UserChangePasswordDto } from 'src/modules/user/dtos/user.change-password.dto';
 import { UserLoginDto } from 'src/modules/user/dtos/user.login.dto';
-import { IUserDocument } from 'src/modules/user/interfaces/user.interface';
+import {
+    IUserCheckExist,
+    IUserDocument,
+} from 'src/modules/user/interfaces/user.interface';
 import { UserDocument } from 'src/modules/user/schemas/user.schema';
 import { UserLoginSerialization } from 'src/modules/user/serializations/user.login.serialization';
 import { UserPayloadSerialization } from 'src/modules/user/serializations/user.payload.serialization';
 import { UserProfileSerialization } from 'src/modules/user/serializations/user.profile.serialization';
 import { UserService } from 'src/modules/user/services/user.service';
+import { RoleDocument } from 'src/modules/role/schemas/role.schema';
+import { RoleService } from 'src/modules/role/services/role.service';
 
 @ApiTags('modules.user')
 @Controller({
@@ -61,7 +67,8 @@ export class UserController {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UserService,
-        private readonly awsService: AwsS3Service
+        private readonly awsService: AwsS3Service,
+        private readonly roleService: RoleService
     ) {}
 
     @Response('user.profile', {
@@ -69,9 +76,9 @@ export class UserController {
     })
     @UserProfileGuard()
     @AuthJwtGuard()
-    @AuthApiKey()
+    // @AuthApiKey()
     @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
+    // @RequestValidateTimestamp()
     @Get('/profile')
     async profile(@GetUser() user: IUserDocument): Promise<IResponse> {
         return user;
@@ -358,5 +365,69 @@ export class UserController {
             accessToken,
             refreshToken,
         };
+    }
+
+    @AuthFirebaseGuard()
+    @HttpCode(HttpStatus.OK)
+    @Post('/login-google')
+    async loginGoogle(@User() { email }: Record<string, any>): Promise<void> {
+        // console.log('u:', u);
+
+        console.log('loginGoogle');
+
+        // * if user in database create token
+        // * if not, create user
+
+        const user: IUserDocument =
+            await this.userService.findOne<IUserDocument>(
+                {
+                    email: email,
+                },
+                {
+                    populate: true,
+                }
+            );
+        // create token
+
+        try {
+            if (!user) {
+                const role: RoleDocument = await this.roleService.findOne<RoleDocument>(
+                    {
+                        name: 'user',
+                    }
+                );
+                if (!role) {
+                    throw new NotFoundException({
+                        statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_NOT_FOUND_ERROR,
+                        message: 'role.error.notFound',
+                    });
+                }
+
+                await this.userService.create({
+                    firstName: body.firstName,
+                    lastName: body.lastName,
+                    email,
+                    mobileNumber,
+                    role: role._id,
+                    password: password.passwordHash,
+                    passwordExpired: password.passwordExpired,
+                    salt: password.salt,
+                });
+            }
+
+            
+
+
+
+            // return;
+        } catch (err: any) {
+            throw new InternalServerErrorException({
+                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+                message: 'http.serverError.internalServerError',
+                error: err.message,
+            });
+        }
+
+        return;
     }
 }
