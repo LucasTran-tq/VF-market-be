@@ -403,16 +403,16 @@ export class UserController {
                     });
                 }
 
-                await this.userService.create({
-                    firstName: body.firstName,
-                    lastName: body.lastName,
-                    email,
-                    mobileNumber,
-                    role: role._id,
-                    password: password.passwordHash,
-                    passwordExpired: password.passwordExpired,
-                    salt: password.salt,
-                });
+                // await this.userService.create({
+                //     firstName: body.firstName,
+                //     lastName: body.lastName,
+                //     email,
+                //     mobileNumber,
+                //     role: role._id,
+                //     password: password.passwordHash,
+                //     passwordExpired: password.passwordExpired,
+                //     salt: password.salt,
+                // });
             }
 
             
