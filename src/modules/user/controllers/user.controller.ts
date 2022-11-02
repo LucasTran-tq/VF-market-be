@@ -495,7 +495,5 @@ export class UserController {
                 error: err.message,
             });
         }
-
-        return;
     }
 }

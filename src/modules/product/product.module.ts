@@ -5,7 +5,7 @@ import {
     ProductDatabaseName,
     ProductEntity,
     ProductSchema,
-} from './schemas/Product.schema';
+} from './schemas/product.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DATABASE_CONNECTION_NAME } from 'src/common/database/constants/database.constant';
 import { ProductRepository } from './repositories/product.repository';

@@ -9,7 +9,7 @@ import {
     IDatabaseOptions,
 } from 'src/common/database/interfaces/database.interface';
 // import { ProductUpdateDto } from 'src/modules/product/dtos/Product.update.dto';
-import { ProductDocument } from 'src/modules/Product/schemas/Product.schema';
+import { ProductDocument } from 'src/modules/Product/schemas/product.schema';
 // import { ProductPayloadSerialization } from 'src/modules/Product/serializations/Product.payload.serialization';
 import {
     IProductCheckExist,

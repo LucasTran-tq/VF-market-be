@@ -8,6 +8,8 @@ import { SettingController } from 'src/common/setting/controllers/setting.contro
 import { HealthController } from 'src/health/controllers/health.controller';
 import { HealthModule } from 'src/health/health.module';
 import { PermissionModule } from 'src/modules/permission/permission.module';
+import { ProductController } from 'src/modules/product/controllers/product.controller';
+import { ProductModule } from 'src/modules/product/product.module';
 import { RoleModule } from 'src/modules/role/role.module';
 import { UserController } from 'src/modules/user/controllers/user.controller';
 import { UserModule } from 'src/modules/user/user.module';
@@ -18,6 +20,7 @@ import { UserModule } from 'src/modules/user/user.module';
         UserController,
         HealthController,
         AuthController,
+        ProductController
     ],
     providers: [],
     exports: [],
@@ -30,6 +33,7 @@ import { UserModule } from 'src/modules/user/user.module';
         HealthModule,
         TerminusModule,
         HttpModule,
+        ProductModule
     ],
 })
 export class RoutesModule {}

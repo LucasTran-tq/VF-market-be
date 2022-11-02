@@ -24,6 +24,8 @@ import {
     IResponsePaging,
 } from 'src/common/response/interfaces/response.interface';
 import { ResponseIdSerialization } from 'src/common/response/serializations/response.id.serialization';
+import { AuthAdminJwtGuard } from 'src/common/auth/decorators/auth.jwt.decorator';
+import { ENUM_AUTH_PERMISSIONS } from 'src/common/auth/constants/auth.enum.permission.constant';
 
 @ApiTags('modules.admin.product')
 @Controller({
@@ -42,6 +44,7 @@ export class ProductAdminController {
     @Response('product.create', {
         classSerialization: ResponseIdSerialization,
     })
+    @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.USER_READ)
     @Post('/create')
     async create(
         @Body()

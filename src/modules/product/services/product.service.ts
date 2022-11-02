@@ -15,34 +15,13 @@ import {
 // import { UpdateProductDto } from '../dtoa/update-product.dto';
 import { IProductService } from '../interfaces/product.service.interface';
 import { ProductRepository } from '../repositories/product.repository';
-import { ProductDocument, ProductEntity } from '../schemas/Product.schema';
+import { ProductDocument, ProductEntity } from '../schemas/product.schema';
 
 @Injectable()
 export class ProductService implements IProductService {
     constructor(
         private readonly productRepository: ProductRepository // private readonly helperStringService: HelperStringService, // private readonly configService: ConfigService
     ) {}
-    findAll<T>(
-        find?: Record<string, any>,
-        options?: IDatabaseFindAllOptions
-    ): Promise<T[]> {
-        throw new Error('Method not implemented.');
-    }
-    findOneById<T>(_id: string, options?: IDatabaseFindOneOptions): Promise<T> {
-        throw new Error('Method not implemented.');
-    }
-    findOne<T>(
-        find: Record<string, any>,
-        options?: IDatabaseFindOneOptions
-    ): Promise<T> {
-        throw new Error('Method not implemented.');
-    }
-    getTotal(
-        find?: Record<string, any>,
-        options?: IDatabaseOptions
-    ): Promise<number> {
-        throw new Error('Method not implemented.');
-    }
 
     async create(
         { name, description, price, images }: IProductCreate,
@@ -56,19 +35,6 @@ export class ProductService implements IProductService {
         };
 
         return this.productRepository.create<ProductEntity>(product, options);
-    }
-
-    deleteOneById(
-        _id: string,
-        options?: IDatabaseSoftDeleteOptions
-    ): Promise<ProductDocument> {
-        throw new Error('Method not implemented.');
-    }
-    deleteOne(
-        find: Record<string, any>,
-        options?: IDatabaseSoftDeleteOptions
-    ): Promise<ProductDocument> {
-        throw new Error('Method not implemented.');
     }
 
     async checkExist(
@@ -88,5 +54,47 @@ export class ProductService implements IProductService {
         return {
             name: existProduct,
         };
+    }
+
+    async findAll<T>(
+        find?: Record<string, any>,
+        options?: IDatabaseFindAllOptions
+    ): Promise<T[]> {
+        return this.productRepository.findAll<T>(find, options);
+    }
+
+    async findOneById<T>(
+        _id: string,
+        options?: IDatabaseFindOneOptions
+    ): Promise<T> {
+        return this.productRepository.findOneById<T>(_id, options);
+    }
+
+    async findOne<T>(
+        find: Record<string, any>,
+        options?: IDatabaseFindOneOptions
+    ): Promise<T> {
+        return this.productRepository.findOne<T>(find, options);
+    }
+
+    async getTotal(
+        find?: Record<string, any>,
+        options?: IDatabaseOptions
+    ): Promise<number> {
+        return this.productRepository.getTotal(find, options);
+    }
+
+    async deleteOneById(
+        _id: string,
+        options?: IDatabaseSoftDeleteOptions
+    ): Promise<ProductDocument> {
+        return this.productRepository.deleteOneById(_id, options);
+    }
+
+    async deleteOne(
+        find: Record<string, any>,
+        options?: IDatabaseSoftDeleteOptions
+    ): Promise<ProductDocument> {
+        return this.productRepository.deleteOne(find, options);
     }
 }
