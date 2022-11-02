@@ -1,3 +1,5 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import {
     BadRequestException,
     Body,
@@ -19,6 +21,7 @@ import {
     AuthJwtGuard,
     AuthRefreshJwtGuard,
 } from 'src/common/auth/decorators/auth.jwt.decorator';
+import { AuthFirebaseGuard } from 'src/common/auth/decorators/auth.firebase.decorator';
 import { AuthService } from 'src/common/auth/services/auth.service';
 import { AwsS3Serialization } from 'src/common/aws/serializations/aws.s3.serialization';
 import { AwsS3Service } from 'src/common/aws/services/aws.s3.service';
@@ -45,12 +48,17 @@ import { GetUser } from 'src/modules/user/decorators/user.decorator';
 import { UserProfileGuard } from 'src/modules/user/decorators/user.public.decorator';
 import { UserChangePasswordDto } from 'src/modules/user/dtos/user.change-password.dto';
 import { UserLoginDto } from 'src/modules/user/dtos/user.login.dto';
-import { IUserDocument } from 'src/modules/user/interfaces/user.interface';
+import {
+    IUserCheckExist,
+    IUserDocument,
+} from 'src/modules/user/interfaces/user.interface';
 import { UserDocument } from 'src/modules/user/schemas/user.schema';
 import { UserLoginSerialization } from 'src/modules/user/serializations/user.login.serialization';
 import { UserPayloadSerialization } from 'src/modules/user/serializations/user.payload.serialization';
 import { UserProfileSerialization } from 'src/modules/user/serializations/user.profile.serialization';
 import { UserService } from 'src/modules/user/services/user.service';
+import { RoleDocument } from 'src/modules/role/schemas/role.schema';
+import { RoleService } from 'src/modules/role/services/role.service';
 
 @ApiTags('modules.user')
 @Controller({
@@ -61,7 +69,8 @@ export class UserController {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UserService,
-        private readonly awsService: AwsS3Service
+        private readonly awsService: AwsS3Service,
+        private readonly roleService: RoleService
     ) {}
 
     @Response('user.profile', {
@@ -69,9 +78,9 @@ export class UserController {
     })
     @UserProfileGuard()
     @AuthJwtGuard()
-    @AuthApiKey()
+    // @AuthApiKey()
     @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
+    // @RequestValidateTimestamp()
     @Get('/profile')
     async profile(@GetUser() user: IUserDocument): Promise<IResponse> {
         return user;
@@ -358,5 +367,133 @@ export class UserController {
             accessToken,
             refreshToken,
         };
+    }
+
+    @Response('user.login', {
+        classSerialization: UserLoginSerialization,
+        doc: { statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS },
+    })
+    @Logger(ENUM_LOGGER_ACTION.LOGIN, { tags: ['login-firebase', 'google'] })
+    @HttpCode(HttpStatus.OK)
+    @AuthFirebaseGuard()
+    @Post('/login-google')
+    async loginGoogle(
+        @User() { email }: Record<string, any>
+    ): Promise<IResponse> {
+        // * if user in database create token
+        // * if not, create user
+
+        let user: IUserDocument = await this.userService.findOne<IUserDocument>(
+            {
+                email: email,
+            },
+            {
+                populate: true,
+            }
+        );
+
+        try {
+            if (!user) {
+                const role: RoleDocument =
+                    await this.roleService.findOne<RoleDocument>({
+                        name: 'user',
+                    });
+                if (!role) {
+                    throw new NotFoundException({
+                        statusCode:
+                            ENUM_ROLE_STATUS_CODE_ERROR.ROLE_NOT_FOUND_ERROR,
+                        message: 'role.error.notFound',
+                    });
+                }
+
+                await this.userService.createWithFirebase({
+                    email,
+                    role: role._id,
+                });
+
+                user = await this.userService.findOne<IUserDocument>(
+                    {
+                        email: email,
+                    },
+                    {
+                        populate: true,
+                    }
+                );
+            }
+
+            const payload: UserPayloadSerialization =
+                await this.userService.payloadSerialization(user);
+            const tokenType: string = await this.authService.getTokenType();
+            const expiresIn: number =
+                await this.authService.getAccessTokenExpirationTime();
+            const rememberMe: boolean = true;
+            const payloadAccessToken: Record<string, any> =
+                await this.authService.createPayloadAccessToken(
+                    payload,
+                    rememberMe
+                );
+            const payloadRefreshToken: Record<string, any> =
+                await this.authService.createPayloadRefreshToken(
+                    payload._id,
+                    rememberMe,
+                    {
+                        loginDate: payloadAccessToken.loginDate,
+                    }
+                );
+
+            const payloadHashedAccessToken =
+                await this.authService.encryptAccessToken(payloadAccessToken);
+            const payloadHashedRefreshToken =
+                await this.authService.encryptAccessToken(payloadRefreshToken);
+
+            const accessToken: string =
+                await this.authService.createAccessToken(
+                    payloadHashedAccessToken
+                );
+
+            const refreshToken: string =
+                await this.authService.createRefreshToken(
+                    payloadHashedRefreshToken,
+                    { rememberMe }
+                );
+
+            const checkPasswordExpired: boolean =
+                await this.authService.checkPasswordExpired(
+                    user.passwordExpired
+                );
+
+            if (checkPasswordExpired) {
+                return {
+                    metadata: {
+                        // override status code and message
+                        statusCode:
+                            ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
+                        message: 'user.error.passwordExpired',
+                    },
+                    tokenType,
+                    expiresIn,
+                    accessToken,
+                    refreshToken,
+                };
+            }
+
+            return {
+                metadata: {
+                    // override status code
+                    statusCode:
+                        ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS,
+                },
+                tokenType,
+                expiresIn,
+                accessToken,
+                refreshToken,
+            };
+        } catch (err: any) {
+            throw new InternalServerErrorException({
+                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+                message: 'http.serverError.internalServerError',
+                error: err.message,
+            });
+        }
     }
 }

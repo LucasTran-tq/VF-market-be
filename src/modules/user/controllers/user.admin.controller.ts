@@ -84,9 +84,9 @@ export class UserAdminController {
         classSerialization: UserListSerialization,
     })
     @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.USER_READ)
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
     @Get('/list')
     async list(
         @Query()

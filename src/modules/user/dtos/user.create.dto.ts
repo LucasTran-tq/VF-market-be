@@ -54,7 +54,7 @@ export class UserCreateDto {
     @MinLength(10)
     @MaxLength(14)
     @Type(() => String)
-    @IsStartWith(['628'])
+    // @IsStartWith(['628'])
     readonly mobileNumber: string;
 
     @ApiProperty({

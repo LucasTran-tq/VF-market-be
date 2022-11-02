@@ -96,6 +96,19 @@ export class UserService implements IUserService {
         return this.userRepository.create<UserEntity>(user, options);
     }
 
+    async createWithFirebase(
+        { email, role }: any,
+        options?: IDatabaseCreateOptions
+    ): Promise<UserDocument> {
+        const user: UserEntity = {
+            email,
+            role: new Types.ObjectId(role),
+            isActive: true,
+        };
+
+        return this.userRepository.create<UserEntity>(user, options);
+    }
+
     async deleteOneById(
         _id: string,
         options?: IDatabaseSoftDeleteOptions

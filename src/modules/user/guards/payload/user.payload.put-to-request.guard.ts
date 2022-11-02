@@ -14,6 +14,7 @@ export class UserPayloadPutToRequestGuard implements CanActivate {
             await this.userService.findOneById<IUserDocument>(user._id, {
                 populate: true,
             });
+
         request.__user = check;
 
         return true;

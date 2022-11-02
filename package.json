@@ -15,6 +15,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "build:testnet": "nest build && tar -a -c -f dist.zip dist && scp -i /Users/lucas/Lucas_UIT/Projects/keypems/vfmarket-3.88.53.215.pem dist.zip ubuntu@ec2-3-88-53-215.compute-1.amazonaws.com:~/ && build_testnet.bat",
     "format": "yarn format:src && yarn format:test",
     "format:src": "prettier --write src/**/*.ts",
     "format:test": "prettier --write test/**/*.ts",
@@ -71,6 +72,7 @@
     "class-validator": "^0.13.2",
     "crypto-js": "^4.1.1",
     "express-rate-limit": "^6.6.0",
+    "firebase-admin": "^11.2.0",
     "geolib": "^3.3.3",
     "helmet": "^6.0.0",
     "joi": "^17.6.3",
@@ -81,6 +83,7 @@
     "nestjs-command": "^3.1.2",
     "nestjs-i18n": "^9.2.0",
     "passport": "^0.6.0",
+    "passport-firebase-jwt": "^1.2.1",
     "passport-headerapikey": "^1.2.2",
     "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.13",

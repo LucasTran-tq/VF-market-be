@@ -4,6 +4,7 @@ import { AuthApiBulkRepository } from 'src/common/auth/repositories/auth.api.bul
 import { AuthApiRepository } from 'src/common/auth/repositories/auth.api.repository';
 import { DATABASE_CONNECTION_NAME } from 'src/common/database/constants/database.constant';
 import { ApiKeyStrategy } from './guards/api-key/auth.api-key.strategy';
+import { FirebaseStrategy } from './guards/firebase/auth.firebase.strategy';
 import { JwtRefreshStrategy } from './guards/jwt-refresh/auth.jwt-refresh.strategy';
 import { JwtStrategy } from './guards/jwt/auth.jwt.strategy';
 import {
@@ -15,12 +16,13 @@ import { AuthApiBulkService } from './services/auth.api.bulk.service';
 import { AuthApiService } from './services/auth.api.service';
 import { AuthEnumService } from './services/auth.enum.service';
 import { AuthService } from './services/auth.service';
+import { HelperModule } from 'src/common/helper/helper.module';
 
 @Module({
-    providers: [AuthService, AuthEnumService, JwtStrategy, JwtRefreshStrategy],
+    providers: [AuthService, AuthEnumService, JwtStrategy, JwtRefreshStrategy, FirebaseStrategy],
     exports: [AuthService, AuthEnumService],
     controllers: [],
-    imports: [],
+    imports: [HelperModule],
 })
 export class AuthModule {}
 

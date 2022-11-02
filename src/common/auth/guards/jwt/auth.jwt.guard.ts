@@ -9,6 +9,7 @@ export class JwtGuard extends AuthGuard('jwt') {
         user: TUser,
         info: any
     ): TUser {
+        console.log('in JwtGuard');
         if (err || !user) {
             throw new UnauthorizedException({
                 statusCode:
