@@ -17,9 +17,22 @@ import { AuthApiService } from './services/auth.api.service';
 import { AuthEnumService } from './services/auth.enum.service';
 import { AuthService } from './services/auth.service';
 import { HelperModule } from 'src/common/helper/helper.module';
+import {
+    AuthOtpDatabaseName,
+    AuthOtpEntity,
+    AuthOtpSchema,
+} from './schemas/auth.otp.schema';
+import { AuthOtpService } from './services/auth.otp.service';
+import { AuthOtpRepository } from './repositories/auth.otp.repository';
 
 @Module({
-    providers: [AuthService, AuthEnumService, JwtStrategy, JwtRefreshStrategy, FirebaseStrategy],
+    providers: [
+        AuthService,
+        AuthEnumService,
+        JwtStrategy,
+        JwtRefreshStrategy,
+        FirebaseStrategy,
+    ],
     exports: [AuthService, AuthEnumService],
     controllers: [],
     imports: [HelperModule],
@@ -32,9 +45,11 @@ export class AuthModule {}
         AuthApiBulkService,
         AuthApiBulkRepository,
         AuthApiRepository,
+        AuthOtpRepository,
         ApiKeyStrategy,
+        AuthOtpService
     ],
-    exports: [AuthApiService, AuthApiBulkService],
+    exports: [AuthApiService, AuthApiBulkService, AuthOtpService],
     controllers: [],
     imports: [
         MongooseModule.forFeature(
@@ -43,6 +58,11 @@ export class AuthModule {}
                     name: AuthApiEntity.name,
                     schema: AuthApiSchema,
                     collection: AuthApiDatabaseName,
+                },
+                {
+                    name: AuthOtpEntity.name,
+                    schema: AuthOtpSchema,
+                    collection: AuthOtpDatabaseName,
                 },
             ],
             DATABASE_CONNECTION_NAME

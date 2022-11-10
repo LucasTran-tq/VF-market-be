@@ -1,7 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TerminusModule } from '@nestjs/terminus';
-import { AuthModule } from 'src/common/auth/auth.module';
+import { AuthApiModule, AuthModule } from 'src/common/auth/auth.module';
 import { AuthController } from 'src/common/auth/controllers/auth.controller';
 import { AwsModule } from 'src/common/aws/aws.module';
 import { SettingController } from 'src/common/setting/controllers/setting.controller';
@@ -11,6 +11,7 @@ import { PermissionModule } from 'src/modules/permission/permission.module';
 import { ProductController } from 'src/modules/product/controllers/product.controller';
 import { ProductModule } from 'src/modules/product/product.module';
 import { RoleModule } from 'src/modules/role/role.module';
+import { UserAuthController } from 'src/modules/user/controllers/user.auth.controller';
 import { UserController } from 'src/modules/user/controllers/user.controller';
 import { UserModule } from 'src/modules/user/user.module';
 
@@ -20,7 +21,8 @@ import { UserModule } from 'src/modules/user/user.module';
         UserController,
         HealthController,
         AuthController,
-        ProductController
+        ProductController,
+        UserAuthController
     ],
     providers: [],
     exports: [],
@@ -33,7 +35,8 @@ import { UserModule } from 'src/modules/user/user.module';
         HealthModule,
         TerminusModule,
         HttpModule,
-        ProductModule
+        ProductModule,
+        AuthApiModule,
     ],
 })
 export class RoutesModule {}

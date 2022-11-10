@@ -287,4 +287,6 @@ export class AuthService implements IAuthService {
     async getSubject(): Promise<string> {
         return this.subject;
     }
+
+    
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DATABASE_CONNECTION_NAME } from 'src/common/database/constants/database.constant';
+import { MailModule } from '../mail/mail.module';
 import { UserBulkRepository } from './repositories/user.bulk.repository';
 import { UserRepository } from './repositories/user.repository';
 import {
@@ -22,6 +23,7 @@ import { UserService } from './services/user.service';
             ],
             DATABASE_CONNECTION_NAME
         ),
+        MailModule,
     ],
     exports: [UserService, UserBulkService],
     providers: [

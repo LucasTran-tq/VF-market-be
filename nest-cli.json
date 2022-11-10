@@ -7,6 +7,10 @@
       { 
         "include": "languages/**/*", 
         "outDir": "dist/src" 
+      },
+      {
+        "include": "modules/mail/templates/**/*",
+        "outDir": "dist/src" 
       }
     ],
     "webpack": false,

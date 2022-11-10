@@ -186,117 +186,7 @@ export class UserController {
         return;
     }
 
-    @Response('user.login', {
-        classSerialization: UserLoginSerialization,
-        doc: { statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS },
-    })
-    @Logger(ENUM_LOGGER_ACTION.LOGIN, { tags: ['login', 'withEmail'] })
-    @HttpCode(HttpStatus.OK)
-    @Post('/login')
-    async login(@Body() body: UserLoginDto): Promise<IResponse> {
-        const user: IUserDocument =
-            await this.userService.findOne<IUserDocument>(
-                {
-                    email: body.email,
-                },
-                {
-                    populate: true,
-                }
-            );
-
-        if (!user) {
-            throw new NotFoundException({
-                statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
-                message: 'user.error.notFound',
-            });
-        }
-
-        const validate: boolean = await this.authService.validateUser(
-            body.password,
-            user.password
-        );
-
-        if (!validate) {
-            throw new BadRequestException({
-                statusCode:
-                    ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_NOT_MATCH_ERROR,
-                message: 'user.error.passwordNotMatch',
-            });
-        } else if (!user.isActive) {
-            throw new ForbiddenException({
-                statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_IS_INACTIVE_ERROR,
-                message: 'user.error.inactive',
-            });
-        } else if (!user.role.isActive) {
-            throw new ForbiddenException({
-                statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_IS_INACTIVE_ERROR,
-                message: 'role.error.inactive',
-            });
-        }
-
-        const payload: UserPayloadSerialization =
-            await this.userService.payloadSerialization(user);
-        const tokenType: string = await this.authService.getTokenType();
-        const expiresIn: number =
-            await this.authService.getAccessTokenExpirationTime();
-        const rememberMe: boolean = body.rememberMe ? true : false;
-        const payloadAccessToken: Record<string, any> =
-            await this.authService.createPayloadAccessToken(
-                payload,
-                rememberMe
-            );
-        const payloadRefreshToken: Record<string, any> =
-            await this.authService.createPayloadRefreshToken(
-                payload._id,
-                rememberMe,
-                {
-                    loginDate: payloadAccessToken.loginDate,
-                }
-            );
-
-        const payloadHashedAccessToken =
-            await this.authService.encryptAccessToken(payloadAccessToken);
-        const payloadHashedRefreshToken =
-            await this.authService.encryptAccessToken(payloadRefreshToken);
-
-        const accessToken: string = await this.authService.createAccessToken(
-            payloadHashedAccessToken
-        );
-
-        const refreshToken: string = await this.authService.createRefreshToken(
-            payloadHashedRefreshToken,
-            { rememberMe }
-        );
-
-        const checkPasswordExpired: boolean =
-            await this.authService.checkPasswordExpired(user.passwordExpired);
-
-        if (checkPasswordExpired) {
-            return {
-                metadata: {
-                    // override status code and message
-                    statusCode:
-                        ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
-                    message: 'user.error.passwordExpired',
-                },
-                tokenType,
-                expiresIn,
-                accessToken,
-                refreshToken,
-            };
-        }
-
-        return {
-            metadata: {
-                // override status code
-                statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS,
-            },
-            tokenType,
-            expiresIn,
-            accessToken,
-            refreshToken,
-        };
-    }
+    
 
     @Response('user.refresh', { classSerialization: UserLoginSerialization })
     @AuthRefreshJwtGuard()
@@ -369,131 +259,244 @@ export class UserController {
         };
     }
 
-    @Response('user.login', {
-        classSerialization: UserLoginSerialization,
-        doc: { statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS },
-    })
-    @Logger(ENUM_LOGGER_ACTION.LOGIN, { tags: ['login-firebase', 'google'] })
-    @HttpCode(HttpStatus.OK)
-    @AuthFirebaseGuard()
-    @Post('/login-google')
-    async loginGoogle(
-        @User() { email }: Record<string, any>
-    ): Promise<IResponse> {
-        // * if user in database create token
-        // * if not, create user
+    // @Response('user.login', {
+    //     classSerialization: UserLoginSerialization,
+    //     doc: { statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS },
+    // })
+    // @Logger(ENUM_LOGGER_ACTION.LOGIN, { tags: ['login-firebase', 'google'] })
+    // @HttpCode(HttpStatus.OK)
+    // @AuthFirebaseGuard()
+    // @Post('/login-google')
+    // async loginGoogle(
+    //     @User() { email }: Record<string, any>
+    // ): Promise<IResponse> {
+    //     // * if user in database create token
+    //     // * if not, create user
 
-        let user: IUserDocument = await this.userService.findOne<IUserDocument>(
-            {
-                email: email,
-            },
-            {
-                populate: true,
-            }
-        );
+    //     let user: IUserDocument = await this.userService.findOne<IUserDocument>(
+    //         {
+    //             email: email,
+    //         },
+    //         {
+    //             populate: true,
+    //         }
+    //     );
 
-        try {
-            if (!user) {
-                const role: RoleDocument =
-                    await this.roleService.findOne<RoleDocument>({
-                        name: 'user',
-                    });
-                if (!role) {
-                    throw new NotFoundException({
-                        statusCode:
-                            ENUM_ROLE_STATUS_CODE_ERROR.ROLE_NOT_FOUND_ERROR,
-                        message: 'role.error.notFound',
-                    });
-                }
+    //     try {
+    //         if (!user) {
+    //             const role: RoleDocument =
+    //                 await this.roleService.findOne<RoleDocument>({
+    //                     name: 'user',
+    //                 });
+    //             if (!role) {
+    //                 throw new NotFoundException({
+    //                     statusCode:
+    //                         ENUM_ROLE_STATUS_CODE_ERROR.ROLE_NOT_FOUND_ERROR,
+    //                     message: 'role.error.notFound',
+    //                 });
+    //             }
 
-                await this.userService.createWithFirebase({
-                    email,
-                    role: role._id,
-                });
+    //             await this.userService.createWithFirebase({
+    //                 email,
+    //                 role: role._id,
+    //             });
 
-                user = await this.userService.findOne<IUserDocument>(
-                    {
-                        email: email,
-                    },
-                    {
-                        populate: true,
-                    }
-                );
-            }
+    //             user = await this.userService.findOne<IUserDocument>(
+    //                 {
+    //                     email: email,
+    //                 },
+    //                 {
+    //                     populate: true,
+    //                 }
+    //             );
+    //         }
 
-            const payload: UserPayloadSerialization =
-                await this.userService.payloadSerialization(user);
-            const tokenType: string = await this.authService.getTokenType();
-            const expiresIn: number =
-                await this.authService.getAccessTokenExpirationTime();
-            const rememberMe: boolean = true;
-            const payloadAccessToken: Record<string, any> =
-                await this.authService.createPayloadAccessToken(
-                    payload,
-                    rememberMe
-                );
-            const payloadRefreshToken: Record<string, any> =
-                await this.authService.createPayloadRefreshToken(
-                    payload._id,
-                    rememberMe,
-                    {
-                        loginDate: payloadAccessToken.loginDate,
-                    }
-                );
+    //         const payload: UserPayloadSerialization =
+    //             await this.userService.payloadSerialization(user);
+    //         const tokenType: string = await this.authService.getTokenType();
+    //         const expiresIn: number =
+    //             await this.authService.getAccessTokenExpirationTime();
+    //         const rememberMe: boolean = true;
+    //         const payloadAccessToken: Record<string, any> =
+    //             await this.authService.createPayloadAccessToken(
+    //                 payload,
+    //                 rememberMe
+    //             );
+    //         const payloadRefreshToken: Record<string, any> =
+    //             await this.authService.createPayloadRefreshToken(
+    //                 payload._id,
+    //                 rememberMe,
+    //                 {
+    //                     loginDate: payloadAccessToken.loginDate,
+    //                 }
+    //             );
 
-            const payloadHashedAccessToken =
-                await this.authService.encryptAccessToken(payloadAccessToken);
-            const payloadHashedRefreshToken =
-                await this.authService.encryptAccessToken(payloadRefreshToken);
+    //         const payloadHashedAccessToken =
+    //             await this.authService.encryptAccessToken(payloadAccessToken);
+    //         const payloadHashedRefreshToken =
+    //             await this.authService.encryptAccessToken(payloadRefreshToken);
 
-            const accessToken: string =
-                await this.authService.createAccessToken(
-                    payloadHashedAccessToken
-                );
+    //         const accessToken: string =
+    //             await this.authService.createAccessToken(
+    //                 payloadHashedAccessToken
+    //             );
 
-            const refreshToken: string =
-                await this.authService.createRefreshToken(
-                    payloadHashedRefreshToken,
-                    { rememberMe }
-                );
+    //         const refreshToken: string =
+    //             await this.authService.createRefreshToken(
+    //                 payloadHashedRefreshToken,
+    //                 { rememberMe }
+    //             );
 
-            const checkPasswordExpired: boolean =
-                await this.authService.checkPasswordExpired(
-                    user.passwordExpired
-                );
+    //         const checkPasswordExpired: boolean =
+    //             await this.authService.checkPasswordExpired(
+    //                 user.passwordExpired
+    //             );
 
-            if (checkPasswordExpired) {
-                return {
-                    metadata: {
-                        // override status code and message
-                        statusCode:
-                            ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
-                        message: 'user.error.passwordExpired',
-                    },
-                    tokenType,
-                    expiresIn,
-                    accessToken,
-                    refreshToken,
-                };
-            }
+    //         if (checkPasswordExpired) {
+    //             return {
+    //                 metadata: {
+    //                     // override status code and message
+    //                     statusCode:
+    //                         ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
+    //                     message: 'user.error.passwordExpired',
+    //                 },
+    //                 tokenType,
+    //                 expiresIn,
+    //                 accessToken,
+    //                 refreshToken,
+    //             };
+    //         }
 
-            return {
-                metadata: {
-                    // override status code
-                    statusCode:
-                        ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS,
-                },
-                tokenType,
-                expiresIn,
-                accessToken,
-                refreshToken,
-            };
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
-    }
+    //         return {
+    //             metadata: {
+    //                 // override status code
+    //                 statusCode:
+    //                     ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS,
+    //             },
+    //             tokenType,
+    //             expiresIn,
+    //             accessToken,
+    //             refreshToken,
+    //         };
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
+    // }
+
+
+    // @Response('user.login', {
+    //     classSerialization: UserLoginSerialization,
+    //     doc: { statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS },
+    // })
+    // @Logger(ENUM_LOGGER_ACTION.LOGIN, { tags: ['login', 'withEmail'] })
+    // @HttpCode(HttpStatus.OK)
+    // @Post('/login')
+    // async login(@Body() body: UserLoginDto): Promise<IResponse> {
+    //     const user: IUserDocument =
+    //         await this.userService.findOne<IUserDocument>(
+    //             {
+    //                 email: body.email,
+    //             },
+    //             {
+    //                 populate: true,
+    //             }
+    //         );
+
+    //     if (!user) {
+    //         throw new NotFoundException({
+    //             statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
+    //             message: 'user.error.notFound',
+    //         });
+    //     }
+
+    //     const validate: boolean = await this.authService.validateUser(
+    //         body.password,
+    //         user.password
+    //     );
+
+    //     if (!validate) {
+    //         throw new BadRequestException({
+    //             statusCode:
+    //                 ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_NOT_MATCH_ERROR,
+    //             message: 'user.error.passwordNotMatch',
+    //         });
+    //     } else if (!user.isActive) {
+    //         throw new ForbiddenException({
+    //             statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_IS_INACTIVE_ERROR,
+    //             message: 'user.error.inactive',
+    //         });
+    //     } else if (!user.role.isActive) {
+    //         throw new ForbiddenException({
+    //             statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_IS_INACTIVE_ERROR,
+    //             message: 'role.error.inactive',
+    //         });
+    //     }
+
+    //     const payload: UserPayloadSerialization =
+    //         await this.userService.payloadSerialization(user);
+    //     const tokenType: string = await this.authService.getTokenType();
+    //     const expiresIn: number =
+    //         await this.authService.getAccessTokenExpirationTime();
+    //     const rememberMe: boolean = body.rememberMe ? true : false;
+    //     const payloadAccessToken: Record<string, any> =
+    //         await this.authService.createPayloadAccessToken(
+    //             payload,
+    //             rememberMe
+    //         );
+    //     const payloadRefreshToken: Record<string, any> =
+    //         await this.authService.createPayloadRefreshToken(
+    //             payload._id,
+    //             rememberMe,
+    //             {
+    //                 loginDate: payloadAccessToken.loginDate,
+    //             }
+    //         );
+
+    //     const payloadHashedAccessToken =
+    //         await this.authService.encryptAccessToken(payloadAccessToken);
+    //     const payloadHashedRefreshToken =
+    //         await this.authService.encryptAccessToken(payloadRefreshToken);
+
+    //     const accessToken: string = await this.authService.createAccessToken(
+    //         payloadHashedAccessToken
+    //     );
+
+    //     const refreshToken: string = await this.authService.createRefreshToken(
+    //         payloadHashedRefreshToken,
+    //         { rememberMe }
+    //     );
+
+    //     const checkPasswordExpired: boolean =
+    //         await this.authService.checkPasswordExpired(user.passwordExpired);
+
+    //     if (checkPasswordExpired) {
+    //         return {
+    //             metadata: {
+    //                 // override status code and message
+    //                 statusCode:
+    //                     ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
+    //                 message: 'user.error.passwordExpired',
+    //             },
+    //             tokenType,
+    //             expiresIn,
+    //             accessToken,
+    //             refreshToken,
+    //         };
+    //     }
+
+    //     return {
+    //         metadata: {
+    //             // override status code
+    //             statusCode: ENUM_USER_STATUS_CODE_SUCCESS.USER_LOGIN_SUCCESS,
+    //         },
+    //         tokenType,
+    //         expiresIn,
+    //         accessToken,
+    //         refreshToken,
+    //     };
+    // }
 }

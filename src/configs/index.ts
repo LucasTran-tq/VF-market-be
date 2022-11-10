@@ -9,6 +9,7 @@ import MiddlewareConfig from './middleware.config';
 import RequestConfig from './request.config';
 import DocConfig from './doc.config';
 import DebuggerConfig from './debugger.config';
+import MailConfig from './mail.config';
 
 export default [
     AppConfig,
@@ -22,4 +23,5 @@ export default [
     FileConfig,
     DocConfig,
     DebuggerConfig,
+    MailConfig,
 ];
