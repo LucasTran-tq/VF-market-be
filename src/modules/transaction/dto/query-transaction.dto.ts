@@ -4,7 +4,7 @@ import { Type, Transform } from 'class-transformer';
 export class QueryTransactionDto {
   @IsAlphanumeric()
   @IsOptional()
-  limit?: string;
+  limit?: number;
 
   @IsAlphanumeric()
   @IsOptional()

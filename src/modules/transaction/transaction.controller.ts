@@ -1,10 +1,10 @@
 import { Controller, Body, Post, Get, Query, Param } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { QueryTransactionDto } from './dto/query-transaction.dto';
-import { TransactionsService } from './transactions.service';
+import { TransactionsService } from './services/transaction.service';
 
 @Controller('transactions')
-export class TransactionsController {
+export class TransactionController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Get()
