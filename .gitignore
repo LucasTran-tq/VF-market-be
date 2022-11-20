@@ -52,4 +52,4 @@ lerna-debug.log*
 config.yaml
 config.yml
 
-.zip
+*.zip

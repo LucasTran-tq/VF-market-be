@@ -79,7 +79,7 @@ export class UserController {
     @UserProfileGuard()
     @AuthJwtGuard()
     // @AuthApiKey()
-    @RequestValidateUserAgent()
+    // @RequestValidateUserAgent()
     // @RequestValidateTimestamp()
     @Get('/profile')
     async profile(@GetUser() user: IUserDocument): Promise<IResponse> {
