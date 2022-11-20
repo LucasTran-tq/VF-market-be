@@ -17,13 +17,13 @@ import { IResponse } from 'src/common/response/interfaces/response.interface';
     path: '/auth',
 })
 export class AuthController {
-    @Response('auth.info', { classSerialization: AuthInfoSerialization })
-    @AuthJwtGuard()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/info')
-    async info(@User() user: Record<string, any>): Promise<IResponse> {
-        return user;
-    }
+    // @Response('auth.info', { classSerialization: AuthInfoSerialization })
+    // @AuthJwtGuard()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/info')
+    // async info(@User() user: Record<string, any>): Promise<IResponse> {
+    //     return user;
+    // }
 }

@@ -13,15 +13,15 @@ import { IResponse } from 'src/common/response/interfaces/response.interface';
 export class MessageEnumController {
     constructor(private readonly messageEnumService: MessageEnumService) {}
 
-    @Response('message.languages', {
-        classSerialization: MessageLanguageSerialization,
-    })
-    @Get('/languages')
-    async languages(): Promise<IResponse> {
-        const languages: string[] =
-            await this.messageEnumService.getLanguages();
-        return {
-            languages,
-        };
-    }
+    // @Response('message.languages', {
+    //     classSerialization: MessageLanguageSerialization,
+    // })
+    // @Get('/languages')
+    // async languages(): Promise<IResponse> {
+    //     const languages: string[] =
+    //         await this.messageEnumService.getLanguages();
+    //     return {
+    //         languages,
+    //     };
+    // }
 }

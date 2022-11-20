@@ -34,78 +34,78 @@ export class HealthController {
         private readonly awsIndicator: AwsHealthIndicator
     ) {}
 
-    @Response('health.check', { classSerialization: HealthSerialization })
-    @HealthCheck()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/aws')
-    async checkAws(): Promise<IResponse> {
-        return this.health.check([
-            () => this.awsIndicator.isHealthy('awsBucket'),
-        ]);
-    }
+    // @Response('health.check', { classSerialization: HealthSerialization })
+    // @HealthCheck()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/aws')
+    // async checkAws(): Promise<IResponse> {
+    //     return this.health.check([
+    //         () => this.awsIndicator.isHealthy('awsBucket'),
+    //     ]);
+    // }
 
-    @Response('health.check', { classSerialization: HealthSerialization })
-    @HealthCheck()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/database')
-    async checkDatabase(): Promise<IResponse> {
-        return this.health.check([
-            () =>
-                this.databaseIndicator.pingCheck('database', {
-                    connection: this.databaseConnection,
-                }),
-        ]);
-    }
+    // @Response('health.check', { classSerialization: HealthSerialization })
+    // @HealthCheck()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/database')
+    // async checkDatabase(): Promise<IResponse> {
+    //     return this.health.check([
+    //         () =>
+    //             this.databaseIndicator.pingCheck('database', {
+    //                 connection: this.databaseConnection,
+    //             }),
+    //     ]);
+    // }
 
-    @Response('health.check', { classSerialization: HealthSerialization })
-    @HealthCheck()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/memory-heap')
-    async checkMemoryHeap(): Promise<IResponse> {
-        return this.health.check([
-            () =>
-                this.memoryHealthIndicator.checkHeap(
-                    'memoryHeap',
-                    300 * 1024 * 1024
-                ),
-        ]);
-    }
+    // @Response('health.check', { classSerialization: HealthSerialization })
+    // @HealthCheck()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/memory-heap')
+    // async checkMemoryHeap(): Promise<IResponse> {
+    //     return this.health.check([
+    //         () =>
+    //             this.memoryHealthIndicator.checkHeap(
+    //                 'memoryHeap',
+    //                 300 * 1024 * 1024
+    //             ),
+    //     ]);
+    // }
 
-    @Response('health.check', { classSerialization: HealthSerialization })
-    @HealthCheck()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/memory-rss')
-    async checkMemoryRss(): Promise<IResponse> {
-        return this.health.check([
-            () =>
-                this.memoryHealthIndicator.checkRSS(
-                    'memoryRss',
-                    300 * 1024 * 1024
-                ),
-        ]);
-    }
+    // @Response('health.check', { classSerialization: HealthSerialization })
+    // @HealthCheck()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/memory-rss')
+    // async checkMemoryRss(): Promise<IResponse> {
+    //     return this.health.check([
+    //         () =>
+    //             this.memoryHealthIndicator.checkRSS(
+    //                 'memoryRss',
+    //                 300 * 1024 * 1024
+    //             ),
+    //     ]);
+    // }
 
-    @Response('health.check', { classSerialization: HealthSerialization })
-    @HealthCheck()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/storage')
-    async checkStorage(): Promise<IResponse> {
-        return this.health.check([
-            () =>
-                this.diskHealthIndicator.checkStorage('diskHealth', {
-                    thresholdPercent: 0.75,
-                    path: '/',
-                }),
-        ]);
-    }
+    // @Response('health.check', { classSerialization: HealthSerialization })
+    // @HealthCheck()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/storage')
+    // async checkStorage(): Promise<IResponse> {
+    //     return this.health.check([
+    //         () =>
+    //             this.diskHealthIndicator.checkStorage('diskHealth', {
+    //                 thresholdPercent: 0.75,
+    //                 path: '/',
+    //             }),
+    //     ]);
+    // }
 }

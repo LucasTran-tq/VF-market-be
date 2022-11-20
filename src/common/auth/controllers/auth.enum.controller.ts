@@ -13,14 +13,14 @@ import { IResponse } from 'src/common/response/interfaces/response.interface';
 export class AuthEnumController {
     constructor(private readonly authEnumService: AuthEnumService) {}
 
-    @Response('auth.enum.accessFor', {
-        classSerialization: AuthAccessForSerialization,
-    })
-    @Get('/access-for')
-    async accessFor(): Promise<IResponse> {
-        const accessFor: string[] = await this.authEnumService.getAccessFor();
-        return {
-            accessFor,
-        };
-    }
+    // @Response('auth.enum.accessFor', {
+    //     classSerialization: AuthAccessForSerialization,
+    // })
+    // @Get('/access-for')
+    // async accessFor(): Promise<IResponse> {
+    //     const accessFor: string[] = await this.authEnumService.getAccessFor();
+    //     return {
+    //         accessFor,
+    //     };
+    // }
 }

@@ -67,256 +67,256 @@ export class RoleAdminController {
         private readonly permissionService: PermissionService
     ) {}
 
-    @ResponsePaging('role.list', {
-        classSerialization: RoleListSerialization,
-    })
-    @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.ROLE_READ)
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/list')
-    async list(
-        @Query()
-        {
-            page,
-            perPage,
-            sort,
-            search,
-            availableSort,
-            availableSearch,
-        }: RoleListDto
-    ): Promise<IResponsePaging> {
-        const skip: number = await this.paginationService.skip(page, perPage);
-        const find: Record<string, any> = {
-            ...search,
-        };
+    // @ResponsePaging('role.list', {
+    //     classSerialization: RoleListSerialization,
+    // })
+    // @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.ROLE_READ)
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/list')
+    // async list(
+    //     @Query()
+    //     {
+    //         page,
+    //         perPage,
+    //         sort,
+    //         search,
+    //         availableSort,
+    //         availableSearch,
+    //     }: RoleListDto
+    // ): Promise<IResponsePaging> {
+    //     const skip: number = await this.paginationService.skip(page, perPage);
+    //     const find: Record<string, any> = {
+    //         ...search,
+    //     };
 
-        const roles: RoleDocument[] = await this.roleService.findAll(find, {
-            skip: skip,
-            limit: perPage,
-            sort,
-        });
+    //     const roles: RoleDocument[] = await this.roleService.findAll(find, {
+    //         skip: skip,
+    //         limit: perPage,
+    //         sort,
+    //     });
 
-        const totalData: number = await this.roleService.getTotal({});
-        const totalPage: number = await this.paginationService.totalPage(
-            totalData,
-            perPage
-        );
+    //     const totalData: number = await this.roleService.getTotal({});
+    //     const totalPage: number = await this.paginationService.totalPage(
+    //         totalData,
+    //         perPage
+    //     );
 
-        return {
-            totalData,
-            totalPage,
-            currentPage: page,
-            perPage,
-            availableSearch,
-            availableSort,
-            data: roles,
-        };
-    }
+    //     return {
+    //         totalData,
+    //         totalPage,
+    //         currentPage: page,
+    //         perPage,
+    //         availableSearch,
+    //         availableSort,
+    //         data: roles,
+    //     };
+    // }
 
-    @Response('role.get', {
-        classSerialization: RoleGetSerialization,
-        doc: { params: RoleDocParamsGet },
-    })
-    @RoleGetGuard()
-    @RequestParamGuard(RoleRequestDto)
-    @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.ROLE_READ)
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('get/:role')
-    async get(@GetRole() role: IRoleDocument): Promise<IResponse> {
-        return role;
-    }
+    // @Response('role.get', {
+    //     classSerialization: RoleGetSerialization,
+    //     doc: { params: RoleDocParamsGet },
+    // })
+    // @RoleGetGuard()
+    // @RequestParamGuard(RoleRequestDto)
+    // @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.ROLE_READ)
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('get/:role')
+    // async get(@GetRole() role: IRoleDocument): Promise<IResponse> {
+    //     return role;
+    // }
 
-    @Response('role.create', {
-        classSerialization: ResponseIdSerialization,
-        doc: {
-            httpStatus: HttpStatus.CREATED,
-        },
-    })
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.ROLE_READ,
-        ENUM_AUTH_PERMISSIONS.ROLE_CREATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Post('/create')
-    async create(
-        @Body()
-        { name, permissions, accessFor }: RoleCreateDto
-    ): Promise<IResponse> {
-        const exist: boolean = await this.roleService.exists(name);
-        if (exist) {
-            throw new BadRequestException({
-                statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_EXIST_ERROR,
-                message: 'role.error.exist',
-            });
-        }
+    // @Response('role.create', {
+    //     classSerialization: ResponseIdSerialization,
+    //     doc: {
+    //         httpStatus: HttpStatus.CREATED,
+    //     },
+    // })
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.ROLE_READ,
+    //     ENUM_AUTH_PERMISSIONS.ROLE_CREATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Post('/create')
+    // async create(
+    //     @Body()
+    //     { name, permissions, accessFor }: RoleCreateDto
+    // ): Promise<IResponse> {
+    //     const exist: boolean = await this.roleService.exists(name);
+    //     if (exist) {
+    //         throw new BadRequestException({
+    //             statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_EXIST_ERROR,
+    //             message: 'role.error.exist',
+    //         });
+    //     }
 
-        for (const permission of permissions) {
-            const checkPermission: PermissionDocument =
-                await this.permissionService.findOneById(permission);
+    //     for (const permission of permissions) {
+    //         const checkPermission: PermissionDocument =
+    //             await this.permissionService.findOneById(permission);
 
-            if (!checkPermission) {
-                throw new NotFoundException({
-                    statusCode:
-                        ENUM_PERMISSION_STATUS_CODE_ERROR.PERMISSION_NOT_FOUND_ERROR,
-                    message: 'permission.error.notFound',
-                });
-            }
-        }
+    //         if (!checkPermission) {
+    //             throw new NotFoundException({
+    //                 statusCode:
+    //                     ENUM_PERMISSION_STATUS_CODE_ERROR.PERMISSION_NOT_FOUND_ERROR,
+    //                 message: 'permission.error.notFound',
+    //             });
+    //         }
+    //     }
 
-        try {
-            const create = await this.roleService.create({
-                name,
-                permissions,
-                accessFor,
-            });
+    //     try {
+    //         const create = await this.roleService.create({
+    //             name,
+    //             permissions,
+    //             accessFor,
+    //         });
 
-            return {
-                _id: create._id,
-            };
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
-    }
+    //         return {
+    //             _id: create._id,
+    //         };
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
+    // }
 
-    @Response('role.update', {
-        classSerialization: ResponseIdSerialization,
-        doc: { params: RoleDocParamsGet },
-    })
-    @RoleUpdateGuard()
-    @RequestParamGuard(RoleRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.ROLE_READ,
-        ENUM_AUTH_PERMISSIONS.ROLE_UPDATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Put('/update/:role')
-    async update(
-        @GetRole() role: RoleDocument,
-        @Body()
-        { name, permissions, accessFor }: RoleUpdateDto
-    ): Promise<IResponse> {
-        const check: boolean = await this.roleService.exists(name, role._id);
-        if (check) {
-            throw new BadRequestException({
-                statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_EXIST_ERROR,
-                message: 'role.error.exist',
-            });
-        }
+    // @Response('role.update', {
+    //     classSerialization: ResponseIdSerialization,
+    //     doc: { params: RoleDocParamsGet },
+    // })
+    // @RoleUpdateGuard()
+    // @RequestParamGuard(RoleRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.ROLE_READ,
+    //     ENUM_AUTH_PERMISSIONS.ROLE_UPDATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Put('/update/:role')
+    // async update(
+    //     @GetRole() role: RoleDocument,
+    //     @Body()
+    //     { name, permissions, accessFor }: RoleUpdateDto
+    // ): Promise<IResponse> {
+    //     const check: boolean = await this.roleService.exists(name, role._id);
+    //     if (check) {
+    //         throw new BadRequestException({
+    //             statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_EXIST_ERROR,
+    //             message: 'role.error.exist',
+    //         });
+    //     }
 
-        for (const permission of permissions) {
-            const checkPermission: PermissionDocument =
-                await this.permissionService.findOneById(permission);
+    //     for (const permission of permissions) {
+    //         const checkPermission: PermissionDocument =
+    //             await this.permissionService.findOneById(permission);
 
-            if (!checkPermission) {
-                throw new NotFoundException({
-                    statusCode:
-                        ENUM_PERMISSION_STATUS_CODE_ERROR.PERMISSION_NOT_FOUND_ERROR,
-                    message: 'permission.error.notFound',
-                });
-            }
-        }
+    //         if (!checkPermission) {
+    //             throw new NotFoundException({
+    //                 statusCode:
+    //                     ENUM_PERMISSION_STATUS_CODE_ERROR.PERMISSION_NOT_FOUND_ERROR,
+    //                 message: 'permission.error.notFound',
+    //             });
+    //         }
+    //     }
 
-        try {
-            await this.roleService.update(role._id, {
-                name,
-                permissions,
-                accessFor,
-            });
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
+    //     try {
+    //         await this.roleService.update(role._id, {
+    //             name,
+    //             permissions,
+    //             accessFor,
+    //         });
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
 
-        return {
-            _id: role._id,
-        };
-    }
+    //     return {
+    //         _id: role._id,
+    //     };
+    // }
 
-    @Response('role.delete', { doc: { params: RoleDocParamsGet } })
-    @RoleDeleteGuard()
-    @RequestParamGuard(RoleRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.ROLE_READ,
-        ENUM_AUTH_PERMISSIONS.ROLE_DELETE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Delete('/delete/:role')
-    async delete(@GetRole() role: IRoleDocument): Promise<void> {
-        try {
-            await this.roleService.deleteOneById(role._id);
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
-        return;
-    }
+    // @Response('role.delete', { doc: { params: RoleDocParamsGet } })
+    // @RoleDeleteGuard()
+    // @RequestParamGuard(RoleRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.ROLE_READ,
+    //     ENUM_AUTH_PERMISSIONS.ROLE_DELETE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Delete('/delete/:role')
+    // async delete(@GetRole() role: IRoleDocument): Promise<void> {
+    //     try {
+    //         await this.roleService.deleteOneById(role._id);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
+    //     return;
+    // }
 
-    @Response('role.inactive', { doc: { params: RoleDocParamsGet } })
-    @RoleUpdateInactiveGuard()
-    @RequestParamGuard(RoleRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.ROLE_READ,
-        ENUM_AUTH_PERMISSIONS.ROLE_UPDATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Patch('/update/:role/inactive')
-    async inactive(@GetRole() role: IRoleDocument): Promise<void> {
-        try {
-            await this.roleService.inactive(role._id);
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
+    // @Response('role.inactive', { doc: { params: RoleDocParamsGet } })
+    // @RoleUpdateInactiveGuard()
+    // @RequestParamGuard(RoleRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.ROLE_READ,
+    //     ENUM_AUTH_PERMISSIONS.ROLE_UPDATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Patch('/update/:role/inactive')
+    // async inactive(@GetRole() role: IRoleDocument): Promise<void> {
+    //     try {
+    //         await this.roleService.inactive(role._id);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
 
-        return;
-    }
+    //     return;
+    // }
 
-    @Response('role.active', { doc: { params: RoleDocParamsGet } })
-    @RoleUpdateActiveGuard()
-    @RequestParamGuard(RoleRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.ROLE_READ,
-        ENUM_AUTH_PERMISSIONS.ROLE_UPDATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Patch('/update/:role/active')
-    async active(@GetRole() role: IRoleDocument): Promise<void> {
-        try {
-            await this.roleService.active(role._id);
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
+    // @Response('role.active', { doc: { params: RoleDocParamsGet } })
+    // @RoleUpdateActiveGuard()
+    // @RequestParamGuard(RoleRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.ROLE_READ,
+    //     ENUM_AUTH_PERMISSIONS.ROLE_UPDATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Patch('/update/:role/active')
+    // async active(@GetRole() role: IRoleDocument): Promise<void> {
+    //     try {
+    //         await this.roleService.active(role._id);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
 
-        return;
-    }
+    //     return;
+    // }
 }

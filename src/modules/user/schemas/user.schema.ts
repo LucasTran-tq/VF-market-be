@@ -3,6 +3,9 @@ import { Types, Document } from 'mongoose';
 import { AwsS3Serialization } from 'src/common/aws/serializations/aws.s3.serialization';
 import { RoleEntity } from 'src/modules/role/schemas/role.schema';
 
+export const DEFAULT_IMAGE =
+    'https://pic.onlinewebfonts.com/svg/img_264570.png';
+
 @Schema({ timestamps: true, versionKey: false })
 export class UserEntity {
     @Prop({
@@ -77,17 +80,22 @@ export class UserEntity {
 
     @Prop({
         required: false,
-        _id: false,
-        type: {
-            path: String,
-            pathWithFilename: String,
-            filename: String,
-            completedUrl: String,
-            baseUrl: String,
-            mime: String,
-        },
     })
-    photo?: AwsS3Serialization;
+    photo?: string;
+
+    // @Prop({
+    //     required: false,
+    //     _id: false,
+    //     type: {
+    //         path: String,
+    //         pathWithFilename: String,
+    //         filename: String,
+    //         completedUrl: String,
+    //         baseUrl: String,
+    //         mime: String,
+    //     },
+    // })
+    // photo?: AwsS3Serialization;
 }
 
 export const UserDatabaseName = 'users';

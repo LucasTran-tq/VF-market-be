@@ -33,39 +33,39 @@ import { SettingService } from 'src/common/setting/services/setting.service';
 export class SettingAdminController {
     constructor(private readonly settingService: SettingService) {}
 
-    @Response('setting.update', {
-        classSerialization: ResponseIdSerialization,
-        doc: {
-            params: SettingDocParamsGet,
-        },
-    })
-    @SettingUpdateGuard()
-    @RequestParamGuard(SettingRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.SETTING_READ,
-        ENUM_AUTH_PERMISSIONS.SETTING_UPDATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Put('/update/:setting')
-    async update(
-        @GetSetting() setting: SettingDocument,
-        @Body()
-        body: SettingUpdateDto
-    ): Promise<IResponse> {
-        try {
-            await this.settingService.updateOneById(setting._id, body);
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
+    // @Response('setting.update', {
+    //     classSerialization: ResponseIdSerialization,
+    //     doc: {
+    //         params: SettingDocParamsGet,
+    //     },
+    // })
+    // @SettingUpdateGuard()
+    // @RequestParamGuard(SettingRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.SETTING_READ,
+    //     ENUM_AUTH_PERMISSIONS.SETTING_UPDATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Put('/update/:setting')
+    // async update(
+    //     @GetSetting() setting: SettingDocument,
+    //     @Body()
+    //     body: SettingUpdateDto
+    // ): Promise<IResponse> {
+    //     try {
+    //         await this.settingService.updateOneById(setting._id, body);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
 
-        return {
-            _id: setting._id,
-        };
-    }
+    //     return {
+    //         _id: setting._id,
+    //     };
+    // }
 }

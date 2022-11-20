@@ -13,9 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Token, User } from 'src/common/auth/decorators/auth.decorator';
-import {
-    AuthRefreshJwtGuard,
-} from 'src/common/auth/decorators/auth.jwt.decorator';
+import { AuthRefreshJwtGuard } from 'src/common/auth/decorators/auth.jwt.decorator';
 import { AuthFirebaseGuard } from 'src/common/auth/decorators/auth.firebase.decorator';
 import { AuthService } from 'src/common/auth/services/auth.service';
 import { AwsS3Service } from 'src/common/aws/services/aws.s3.service';
@@ -44,8 +42,9 @@ import { AuthOtpService } from 'src/common/auth/services/auth.otp.service';
 import { MailService } from 'src/modules/mail/mail.service';
 import { UserSendOtpDto } from '../dtos/user.send-otp.dto';
 import { UserSignUpDto } from '../dtos/user.sign-up.dto';
+import { DEFAULT_IMAGE } from '../schemas/user.schema';
 
-@ApiTags('modules.user')
+@ApiTags('modules.user.auth')
 @Controller({
     version: '1',
     path: '/auth',
@@ -89,18 +88,21 @@ export class UserAuthController {
         if (checkExist.email && checkExist.mobileNumber) {
             throw new BadRequestException({
                 statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_EXISTS_ERROR,
-                message: 'user.error.exist',
+                // message: 'user.error.exist',
+                message: 'User has already existed.',
             });
         } else if (checkExist.email) {
             throw new BadRequestException({
                 statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_EMAIL_EXIST_ERROR,
-                message: 'user.error.emailExist',
+                // message: 'user.error.emailExist',
+                message: 'Email has already existed.',
             });
         } else if (checkExist.mobileNumber) {
             throw new BadRequestException({
                 statusCode:
                     ENUM_USER_STATUS_CODE_ERROR.USER_MOBILE_NUMBER_EXIST_ERROR,
-                message: 'user.error.mobileNumberExist',
+                // message: 'user.error.mobileNumberExist',
+                message: 'Mobile number has already existed.',
             });
         }
 
@@ -118,6 +120,7 @@ export class UserAuthController {
                 password: password.passwordHash,
                 passwordExpired: password.passwordExpired,
                 salt: password.salt,
+                photo: DEFAULT_IMAGE,
             });
 
             // create otp
@@ -158,7 +161,8 @@ export class UserAuthController {
         if (!checkExist) {
             throw new BadRequestException({
                 statusCode: ENUM_OTP_STATUS_CODE_ERROR.OTP_NOT_FOUND_ERROR,
-                message: 'otp.error.not_found',
+                // message: 'otp.error.not_found',
+                message: 'OTP not found.',
             });
         }
 
@@ -202,7 +206,8 @@ export class UserAuthController {
         if (!user) {
             throw new NotFoundException({
                 statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
-                message: 'user.error.notFound',
+                // message: 'user.error.notFound',
+                message: 'User not found',
             });
         }
 
@@ -215,17 +220,20 @@ export class UserAuthController {
             throw new BadRequestException({
                 statusCode:
                     ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_NOT_MATCH_ERROR,
-                message: 'user.error.passwordNotMatch',
+                // message: 'user.error.passwordNotMatch',
+                message: 'Password not match',
             });
         } else if (!user.isActive) {
             throw new ForbiddenException({
                 statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_IS_INACTIVE_ERROR,
-                message: 'user.error.inactive',
+                // message: 'user.error.inactive',
+                message: 'user is inactive',
             });
         } else if (!user.role.isActive) {
             throw new ForbiddenException({
                 statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_IS_INACTIVE_ERROR,
-                message: 'role.error.inactive',
+                // message: 'role.error.inactive',
+                message: 'user is inactive',
             });
         }
 
@@ -272,7 +280,8 @@ export class UserAuthController {
                     // override status code and message
                     statusCode:
                         ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
-                    message: 'user.error.passwordExpired',
+                    // message: 'user.error.passwordExpired',
+                    message: 'Password expired',
                 },
                 tokenType,
                 expiresIn,
@@ -463,7 +472,8 @@ export class UserAuthController {
                         // override status code and message
                         statusCode:
                             ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_EXPIRED_ERROR,
-                        message: 'user.error.passwordExpired',
+                        // message: 'user.error.passwordExpired',
+                        message: 'Password expired',
                     },
                     tokenType,
                     expiresIn,

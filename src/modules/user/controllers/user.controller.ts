@@ -141,7 +141,8 @@ export class UserController {
         if (!user) {
             throw new NotFoundException({
                 statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
-                message: 'user.error.notFound',
+                // message: 'user.error.notFound',
+                message: 'User not found',
             });
         }
 
@@ -153,7 +154,8 @@ export class UserController {
             throw new BadRequestException({
                 statusCode:
                     ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_NOT_MATCH_ERROR,
-                message: 'user.error.passwordNotMatch',
+                // message: 'user.error.passwordNotMatch',
+                message: 'Password not match',
             });
         }
 
@@ -165,7 +167,8 @@ export class UserController {
             throw new BadRequestException({
                 statusCode:
                     ENUM_USER_STATUS_CODE_ERROR.USER_PASSWORD_NEW_MUST_DIFFERENCE_ERROR,
-                message: 'user.error.newPasswordMustDifference',
+                // message: 'user.error.newPasswordMustDifference',
+                message: 'New password must difference',
             });
         }
 

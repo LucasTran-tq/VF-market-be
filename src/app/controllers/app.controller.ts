@@ -27,11 +27,6 @@ export class AppController {
         private readonly helperService: HelperService
     ) {}
 
-    @Get('hi')
-    async hi() {
-        return 'hi';
-    }
-
     @Response('app.hello', { classSerialization: AppHelloSerialization })
     @Logger(ENUM_LOGGER_ACTION.TEST, { tags: ['test'] })
     @Get('/hello')

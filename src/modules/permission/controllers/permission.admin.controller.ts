@@ -57,174 +57,174 @@ export class PermissionAdminController {
         private readonly permissionService: PermissionService
     ) {}
 
-    @ResponsePaging('permission.list', {
-        classSerialization: PermissionListSerialization,
-        doc: {
-            queries: PermissionDocQueryList,
-        },
-    })
-    @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.PERMISSION_READ)
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/list')
-    async list(
-        @Query()
-        {
-            page,
-            perPage,
-            sort,
-            search,
-            availableSort,
-            availableSearch,
-            isActive,
-        }: PermissionListDto
-    ): Promise<IResponsePaging> {
-        const skip: number = await this.paginationService.skip(page, perPage);
-        const find: Record<string, any> = {
-            isActive: {
-                $in: isActive,
-            },
-            ...search,
-        };
+    // @ResponsePaging('permission.list', {
+    //     classSerialization: PermissionListSerialization,
+    //     doc: {
+    //         queries: PermissionDocQueryList,
+    //     },
+    // })
+    // @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.PERMISSION_READ)
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/list')
+    // async list(
+    //     @Query()
+    //     {
+    //         page,
+    //         perPage,
+    //         sort,
+    //         search,
+    //         availableSort,
+    //         availableSearch,
+    //         isActive,
+    //     }: PermissionListDto
+    // ): Promise<IResponsePaging> {
+    //     const skip: number = await this.paginationService.skip(page, perPage);
+    //     const find: Record<string, any> = {
+    //         isActive: {
+    //             $in: isActive,
+    //         },
+    //         ...search,
+    //     };
 
-        const permissions: PermissionDocument[] =
-            await this.permissionService.findAll(find, {
-                skip: skip,
-                limit: perPage,
-                sort,
-            });
+    //     const permissions: PermissionDocument[] =
+    //         await this.permissionService.findAll(find, {
+    //             skip: skip,
+    //             limit: perPage,
+    //             sort,
+    //         });
 
-        const totalData: number = await this.permissionService.getTotal(find);
-        const totalPage: number = await this.paginationService.totalPage(
-            totalData,
-            perPage
-        );
+    //     const totalData: number = await this.permissionService.getTotal(find);
+    //     const totalPage: number = await this.paginationService.totalPage(
+    //         totalData,
+    //         perPage
+    //     );
 
-        return {
-            totalData,
-            totalPage,
-            currentPage: page,
-            perPage,
-            availableSearch,
-            availableSort,
-            data: permissions,
-        };
-    }
+    //     return {
+    //         totalData,
+    //         totalPage,
+    //         currentPage: page,
+    //         perPage,
+    //         availableSearch,
+    //         availableSort,
+    //         data: permissions,
+    //     };
+    // }
 
-    @Response('permission.get', {
-        classSerialization: PermissionGetSerialization,
-        doc: {
-            params: PermissionDocParamsGet,
-        },
-    })
-    @PermissionGetGuard()
-    @RequestParamGuard(PermissionRequestDto)
-    @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.PERMISSION_READ)
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/get/:permission')
-    async get(
-        @GetPermission() permission: PermissionDocument
-    ): Promise<IResponse> {
-        return permission;
-    }
+    // @Response('permission.get', {
+    //     classSerialization: PermissionGetSerialization,
+    //     doc: {
+    //         params: PermissionDocParamsGet,
+    //     },
+    // })
+    // @PermissionGetGuard()
+    // @RequestParamGuard(PermissionRequestDto)
+    // @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.PERMISSION_READ)
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/get/:permission')
+    // async get(
+    //     @GetPermission() permission: PermissionDocument
+    // ): Promise<IResponse> {
+    //     return permission;
+    // }
 
-    @Response('permission.update', {
-        classSerialization: ResponseIdSerialization,
-        doc: {
-            params: PermissionDocParamsGet,
-        },
-    })
-    @PermissionUpdateGuard()
-    @RequestParamGuard(PermissionRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.PERMISSION_READ,
-        ENUM_AUTH_PERMISSIONS.PERMISSION_UPDATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Put('/update/:permission')
-    async update(
-        @GetPermission() permission: PermissionDocument,
-        @Body() body: PermissionUpdateDto
-    ): Promise<IResponse> {
-        try {
-            await this.permissionService.update(permission._id, body);
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
+    // @Response('permission.update', {
+    //     classSerialization: ResponseIdSerialization,
+    //     doc: {
+    //         params: PermissionDocParamsGet,
+    //     },
+    // })
+    // @PermissionUpdateGuard()
+    // @RequestParamGuard(PermissionRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.PERMISSION_READ,
+    //     ENUM_AUTH_PERMISSIONS.PERMISSION_UPDATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Put('/update/:permission')
+    // async update(
+    //     @GetPermission() permission: PermissionDocument,
+    //     @Body() body: PermissionUpdateDto
+    // ): Promise<IResponse> {
+    //     try {
+    //         await this.permissionService.update(permission._id, body);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
 
-        return {
-            _id: permission._id,
-        };
-    }
+    //     return {
+    //         _id: permission._id,
+    //     };
+    // }
 
-    @Response('permission.inactive', {
-        doc: {
-            params: PermissionDocParamsGet,
-        },
-    })
-    @PermissionUpdateInactiveGuard()
-    @RequestParamGuard(PermissionRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.PERMISSION_READ,
-        ENUM_AUTH_PERMISSIONS.PERMISSION_UPDATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Patch('/update/:permission/inactive')
-    async inactive(
-        @GetPermission() permission: PermissionDocument
-    ): Promise<void> {
-        try {
-            await this.permissionService.inactive(permission._id);
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
+    // @Response('permission.inactive', {
+    //     doc: {
+    //         params: PermissionDocParamsGet,
+    //     },
+    // })
+    // @PermissionUpdateInactiveGuard()
+    // @RequestParamGuard(PermissionRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.PERMISSION_READ,
+    //     ENUM_AUTH_PERMISSIONS.PERMISSION_UPDATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Patch('/update/:permission/inactive')
+    // async inactive(
+    //     @GetPermission() permission: PermissionDocument
+    // ): Promise<void> {
+    //     try {
+    //         await this.permissionService.inactive(permission._id);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
 
-        return;
-    }
+    //     return;
+    // }
 
-    @Response('permission.active', {
-        doc: {
-            params: PermissionDocParamsGet,
-        },
-    })
-    @PermissionUpdateActiveGuard()
-    @RequestParamGuard(PermissionRequestDto)
-    @AuthAdminJwtGuard(
-        ENUM_AUTH_PERMISSIONS.PERMISSION_READ,
-        ENUM_AUTH_PERMISSIONS.PERMISSION_UPDATE
-    )
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Patch('/update/:permission/active')
-    async active(
-        @GetPermission() permission: PermissionDocument
-    ): Promise<void> {
-        try {
-            await this.permissionService.active(permission._id);
-        } catch (err: any) {
-            throw new InternalServerErrorException({
-                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
-                message: 'http.serverError.internalServerError',
-                error: err.message,
-            });
-        }
+    // @Response('permission.active', {
+    //     doc: {
+    //         params: PermissionDocParamsGet,
+    //     },
+    // })
+    // @PermissionUpdateActiveGuard()
+    // @RequestParamGuard(PermissionRequestDto)
+    // @AuthAdminJwtGuard(
+    //     ENUM_AUTH_PERMISSIONS.PERMISSION_READ,
+    //     ENUM_AUTH_PERMISSIONS.PERMISSION_UPDATE
+    // )
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Patch('/update/:permission/active')
+    // async active(
+    //     @GetPermission() permission: PermissionDocument
+    // ): Promise<void> {
+    //     try {
+    //         await this.permissionService.active(permission._id);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
 
-        return;
-    }
+    //     return;
+    // }
 }

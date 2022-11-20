@@ -78,6 +78,7 @@ export class UserService implements IUserService {
             email,
             mobileNumber,
             role,
+            photo
         }: IUserCreate,
         options?: IDatabaseCreateOptions
     ): Promise<UserDocument> {
@@ -92,6 +93,7 @@ export class UserService implements IUserService {
             lastName,
             salt,
             passwordExpired,
+            photo
         };
 
         return this.userRepository.create<UserEntity>(user, options);

@@ -75,4 +75,9 @@ export class UserCreateDto {
     @IsNotEmpty()
     @IsPasswordStrong()
     readonly password: string;
+
+    @ApiProperty({
+        required: false,
+    })
+    readonly photo?: string;
 }

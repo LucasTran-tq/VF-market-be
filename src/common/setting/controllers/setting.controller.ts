@@ -46,88 +46,88 @@ export class SettingController {
         private readonly paginationService: PaginationService
     ) {}
 
-    @ResponsePaging('setting.list', {
-        classSerialization: SettingListSerialization,
-        doc: {
-            availableSearch: SETTING_DEFAULT_AVAILABLE_SEARCH,
-            availableSort: SETTING_DEFAULT_AVAILABLE_SORT,
-        },
-    })
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('/list')
-    async list(
-        @Query()
-        {
-            page,
-            perPage,
-            sort,
-            search,
-            availableSort,
-            availableSearch,
-        }: SettingListDto
-    ): Promise<IResponsePaging> {
-        const skip: number = await this.paginationService.skip(page, perPage);
-        const find: Record<string, any> = {
-            ...search,
-        };
+    // @ResponsePaging('setting.list', {
+    //     classSerialization: SettingListSerialization,
+    //     doc: {
+    //         availableSearch: SETTING_DEFAULT_AVAILABLE_SEARCH,
+    //         availableSort: SETTING_DEFAULT_AVAILABLE_SORT,
+    //     },
+    // })
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('/list')
+    // async list(
+    //     @Query()
+    //     {
+    //         page,
+    //         perPage,
+    //         sort,
+    //         search,
+    //         availableSort,
+    //         availableSearch,
+    //     }: SettingListDto
+    // ): Promise<IResponsePaging> {
+    //     const skip: number = await this.paginationService.skip(page, perPage);
+    //     const find: Record<string, any> = {
+    //         ...search,
+    //     };
 
-        const settings: SettingDocument[] = await this.settingService.findAll(
-            find,
-            {
-                limit: perPage,
-                skip: skip,
-                sort,
-            }
-        );
-        const totalData: number = await this.settingService.getTotal(find);
-        const totalPage: number = await this.paginationService.totalPage(
-            totalData,
-            perPage
-        );
+    //     const settings: SettingDocument[] = await this.settingService.findAll(
+    //         find,
+    //         {
+    //             limit: perPage,
+    //             skip: skip,
+    //             sort,
+    //         }
+    //     );
+    //     const totalData: number = await this.settingService.getTotal(find);
+    //     const totalPage: number = await this.paginationService.totalPage(
+    //         totalData,
+    //         perPage
+    //     );
 
-        return {
-            totalData,
-            totalPage,
-            currentPage: page,
-            perPage,
-            availableSearch,
-            availableSort,
-            data: settings,
-        };
-    }
+    //     return {
+    //         totalData,
+    //         totalPage,
+    //         currentPage: page,
+    //         perPage,
+    //         availableSearch,
+    //         availableSort,
+    //         data: settings,
+    //     };
+    // }
 
-    @Response('setting.get', {
-        classSerialization: SettingGetSerialization,
-        doc: {
-            params: SettingDocParamsGet,
-        },
-    })
-    @SettingGetGuard()
-    @RequestParamGuard(SettingRequestDto)
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('get/:setting')
-    async get(@GetSetting() setting: SettingDocument): Promise<IResponse> {
-        return setting;
-    }
+    // @Response('setting.get', {
+    //     classSerialization: SettingGetSerialization,
+    //     doc: {
+    //         params: SettingDocParamsGet,
+    //     },
+    // })
+    // @SettingGetGuard()
+    // @RequestParamGuard(SettingRequestDto)
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('get/:setting')
+    // async get(@GetSetting() setting: SettingDocument): Promise<IResponse> {
+    //     return setting;
+    // }
 
-    @Response('setting.getByName', {
-        classSerialization: SettingGetSerialization,
-        doc: {
-            params: SettingDocParamsGetByName,
-        },
-    })
-    @SettingGetByNameGuard()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @Get('get/name/:settingName')
-    async getByName(
-        @GetSetting() setting: SettingDocument
-    ): Promise<IResponse> {
-        return setting;
-    }
+    // @Response('setting.getByName', {
+    //     classSerialization: SettingGetSerialization,
+    //     doc: {
+    //         params: SettingDocParamsGetByName,
+    //     },
+    // })
+    // @SettingGetByNameGuard()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @Get('get/name/:settingName')
+    // async getByName(
+    //     @GetSetting() setting: SettingDocument
+    // ): Promise<IResponse> {
+    //     return setting;
+    // }
 }
