@@ -1,4 +1,6 @@
 import { Module, forwardRef } from "@nestjs/common";
+import { Web3Module } from "src/common/web3/web3.module";
+import { ConfigurationModule } from "../configuration/configuration.module";
 import { TransactionService } from "./services/transaction.service";
 import { TransactionController } from "./transaction.controller";
 // import { Transaction } from "./transactions.entity";
@@ -13,6 +15,8 @@ import { TransactionController } from "./transaction.controller";
     // forwardRef(() => NftModule),
     // ConfigurationModule,
     // TypeOrmModule.forFeature([Transaction, NFT]),
+    Web3Module,
+    ConfigurationModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

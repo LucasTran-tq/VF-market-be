@@ -1,26 +1,20 @@
-import { Injectable, forwardRef, Inject } from '@nestjs/common';
-import { Transaction } from './transactions.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-
-import { Repository, getMongoRepository, getMongoManager, In } from 'typeorm';
+import { Injectable } from '@nestjs/common';
 
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
-import { QueryTransactionDto } from '../dto/query-transaction.dto';
 
 import { ConfigurationService } from '../configuration/configuration.service';
 
 import { getWeb3 } from '../utils/web3';
 
-import { Cron, Timeout } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 
-import { getTime, CONFIG, GET_AMOUNT_LAUNCHPAD } from '../config';
+import { getTime, CONFIG } from '../config';
 
 import { Abi as LaunchPadABI } from '../contract/LaunchPad';
 import axios from 'axios';
 
-import { NftService } from '../nft/nft.service';
-import { NFT } from 'src/nft/nft.entity';
 import { TransactionRepository } from '../repositories/transaction.repository';
+import { Web3Service } from 'src/common/web3/services/web3.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const abiDecoder = require('abi-decoder');
@@ -36,86 +30,13 @@ export class TransactionService {
     constructor(
         private readonly transactionsRepository: TransactionRepository,
 
-        // @InjectRepository(Transaction)
-        // private transactionsRepository: Repository<Transaction>,
+        private readonly web3Service: Web3Service,
 
-        @InjectRepository(NFT)
-        private nftRepository: Repository<NFT>,
-
-        private readonly configService: ConfigurationService,
-
-        @Inject(forwardRef(() => NftService))
-        private readonly nftService: NftService
+        private readonly configService: ConfigurationService
     ) {}
 
-    async findAll(query: QueryTransactionDto) {
-        const { page, limit, refCode, address } = query;
-
-        const queryTemp: QueryTransMarket = { isMarket: true };
-
-        if (address) {
-            queryTemp.address = address.toLowerCase();
-        }
-
-        if (refCode) {
-            queryTemp.refCode = refCode;
-        }
-
-        const find: Record<string, any> = {
-            ...queryTemp,
-        };
-        const data = await this.transactionsRepository.findAll(find, {
-            sort: { createdAt: -1 },
-            skip: +(page - 1) * +limit,
-            limit: +limit,
-        });
-        const count = await this.transactionsRepository.getTotal(find);
-
-        return { data, count };
-    }
-
-    async findTransMarket(query: QueryTransMarket) {
-        const { address, refCode } = query;
-
-        const queryTemp: QueryTransMarket = { isMarket: true };
-
-        if (address) {
-            queryTemp.address = address.toLowerCase();
-        }
-
-        if (refCode) {
-            queryTemp.refCode = refCode;
-        }
-
-        const data = await this.transactionsRepository.findOne(queryTemp);
-
-        return data;
-    }
-
-    async findMarketTransaction(query: QueryTransactionDto) {
-        const { page, limit } = query;
-        // const [data, count] = await this.transactionsRepository.findAndCount({
-        //     where: { isMarket: true },
-
-        //     order: { createdAt: -1 },
-        //     skip: +(page - 1) * +limit,
-        //     take: +limit,
-        // });
-
-        const find: Record<string, any> = { isMarket: true };
-
-        const data = await this.transactionsRepository.findAll(find, {
-            sort: { createdAt: -1 },
-            skip: +(page - 1) * +limit,
-            limit: +limit,
-        });
-        const count = await this.transactionsRepository.getTotal(find);
-
-        return { data, count };
-    }
-
     async createTransaction(createTransactionDto: CreateTransactionDto) {
-        const web3 = getWeb3();
+        const web3 = this.web3Service.getWeb3();
 
         const [transactionVerified, transactionReceipt] = await Promise.all([
             web3.eth.getTransaction(createTransactionDto.txHash),
@@ -153,49 +74,6 @@ export class TransactionService {
 
         await this.nftService.increaseSold(data.launchpadId);
         return data;
-    }
-
-    async getAmountByRef(refCode: string) {
-        try {
-            const queryTemp = {};
-
-            const data = await this.transactionsRepository.find(queryTemp);
-
-            let total = 0;
-
-            data.forEach((item) => (total += item.amount));
-
-            return total;
-        } catch (e) {}
-    }
-
-    async getLaunchPadByToken(tokenId: number) {
-        try {
-            console.log('tokenId:', tokenId);
-            const trans = await this.transactionsRepository.findOne({
-                tokenId: +tokenId,
-            });
-            console.log('trans:', trans);
-            return trans.launchpadId;
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    async getLaunchPadsByTokens(tokenIds: number[]) {
-        // console.log("tokenIds:", tokenIds);
-        try {
-            const trans = await this.transactionsRepository.find({
-                where: {
-                    tokenId: { $in: tokenIds },
-                },
-            });
-
-            return trans;
-        } catch (e) {
-            // return []
-            throw new Error(e);
-        }
     }
 
     @Cron('30 * * * * *')

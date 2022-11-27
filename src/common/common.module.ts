@@ -15,6 +15,7 @@ import { SettingModule } from 'src/common/setting/setting.module';
 import Joi from 'joi';
 import { ENUM_MESSAGE_LANGUAGE } from './message/constants/message.enum.constant';
 import configs from 'src/configs';
+import { Web3Module } from './web3/web3.module';
 
 @Module({
     controllers: [],
@@ -138,6 +139,7 @@ import configs from 'src/configs';
         AuthApiModule,
         AuthModule,
         SettingModule,
+        Web3Module,
     ],
 })
 export class CommonModule {}
