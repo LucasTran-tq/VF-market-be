@@ -16,9 +16,9 @@ export class TransactionEntity {
     address: string;
 
     @Prop({
-        required: true,
-        index: true,
-        lowercase: true,
+        // required: true,
+        // index: true,
+        // lowercase: true,
     })
     from: string;
 
@@ -28,7 +28,7 @@ export class TransactionEntity {
     type: string;
 
     @Prop({
-        required: true,
+        // required: true,
     })
     amount: number;
 

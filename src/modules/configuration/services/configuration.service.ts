@@ -3,8 +3,6 @@ import { CreateConfigurationDto } from '../dtos/create-configuration.dto';
 import { ConfigurationRepository } from '../repositories/configuration.repository';
 import { ConfigurationEntity } from '../schemas/Configuration.schema';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const abiDecoder = require('abi-decoder');
 
 @Injectable()
 export class ConfigurationService {

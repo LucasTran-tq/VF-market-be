@@ -11,6 +11,7 @@ import { PermissionModule } from 'src/modules/permission/permission.module';
 import { ProductController } from 'src/modules/product/controllers/product.controller';
 import { ProductModule } from 'src/modules/product/product.module';
 import { RoleModule } from 'src/modules/role/role.module';
+import { TransactionModule } from 'src/modules/transaction/transaction.module';
 import { UserAuthController } from 'src/modules/user/controllers/user.auth.controller';
 import { UserController } from 'src/modules/user/controllers/user.controller';
 import { UserModule } from 'src/modules/user/user.module';
@@ -37,6 +38,7 @@ import { UserModule } from 'src/modules/user/user.module';
         HttpModule,
         ProductModule,
         AuthApiModule,
+        TransactionModule
     ],
 })
 export class RoutesModule {}
