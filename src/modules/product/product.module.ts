@@ -9,6 +9,8 @@ import {
 import { MongooseModule } from '@nestjs/mongoose';
 import { DATABASE_CONNECTION_NAME } from 'src/common/database/constants/database.constant';
 import { ProductRepository } from './repositories/product.repository';
+import { TransactionModule } from '../transaction/transaction.module';
+import { Web3Module } from 'src/common/web3/web3.module';
 
 @Module({
     imports: [
@@ -22,6 +24,8 @@ import { ProductRepository } from './repositories/product.repository';
             ],
             DATABASE_CONNECTION_NAME
         ),
+        Web3Module,
+        TransactionModule,
     ],
     controllers: [ProductController],
     providers: [ProductService, ProductRepository],

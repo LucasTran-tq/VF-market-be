@@ -27,6 +27,19 @@ export class TransactionService {
         private readonly configService: ConfigurationService
     ) {}
 
+    async getLaunchPadByToken(tokenId: number) {
+        try {
+            const trans = await this.transactionsRepository.findOne({
+                tokenId: +tokenId,
+            });
+            console.log('tokenId: ' + tokenId);
+            console.log('trans: ' + JSON.stringify(trans));
+            return trans.launchpadId;
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
     async createTransaction(createTransactionDto: CreateTransactionDto) {
         const web3 = this.web3Service.getWeb3();
 
@@ -156,7 +169,7 @@ export class TransactionService {
                         item.blockNumber,
                         item.hash
                     );
-                    console.log('returnValues:', returnValues);
+                    // console.log('returnValues:', returnValues);
 
                     // const nft = await this.nftRepository.findOne({
                     //     launchId: +returnValues.launchIndex,

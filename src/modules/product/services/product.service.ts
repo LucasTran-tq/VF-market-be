@@ -8,6 +8,8 @@ import {
     IDatabaseSoftDeleteOptions,
     IDatabaseExistOptions,
 } from 'src/common/database/interfaces/database.interface';
+import { Web3Service } from 'src/common/web3/services/web3.service';
+import { TransactionService } from 'src/modules/transaction/services/transaction.service';
 import {
     IProductCheckExist,
     IProductCreate,
@@ -16,11 +18,14 @@ import {
 import { IProductService } from '../interfaces/product.service.interface';
 import { ProductRepository } from '../repositories/product.repository';
 import { ProductDocument, ProductEntity } from '../schemas/product.schema';
+import { Abi as NFTAbi } from 'src/common/web3/contracts/NFT';
 
 @Injectable()
 export class ProductService implements IProductService {
     constructor(
-        private readonly productRepository: ProductRepository // private readonly helperStringService: HelperStringService, // private readonly configService: ConfigService
+        private readonly productRepository: ProductRepository,
+        private readonly transactionService: TransactionService,
+        private readonly web3Service: Web3Service
     ) {}
 
     async create(
@@ -96,5 +101,127 @@ export class ProductService implements IProductService {
         options?: IDatabaseSoftDeleteOptions
     ): Promise<ProductDocument> {
         return this.productRepository.deleteOne(find, options);
+    }
+
+    async getMetadata(id: string): Promise<any> {
+        console.log('============ START getMetadata ===============');
+        console.log('id: ' + id);
+        try {
+            const launchpadId =
+                await this.transactionService.getLaunchPadByToken(+id);
+            console.log('launchpadId: ' + JSON.stringify(launchpadId));
+
+            const data = await this.productRepository.findOne({
+                launchId: +launchpadId,
+            });
+            console.log('data: ' + JSON.stringify(data));
+
+            const date = new Date();
+            const today =
+                date.getDate() +
+                '-' +
+                (date.getMonth() + 1) +
+                '-' +
+                date.getFullYear();
+            const newData = {
+                ...data,
+                tokenId: +id,
+                // image: `${process.env.STATIC_SERVER}/upload/${data.image}?${today}`,
+            };
+
+            return newData;
+        } catch (e) {
+            console.log(e);
+            return {};
+        }
+    }
+
+    async getMyNft(account: string) {
+        console.log('=== START FUNCTION getMyNft======');
+        // const web3 = getWeb3();
+        const web3 = this.web3Service.getWeb3();
+
+        try {
+            const multicallContract = this.web3Service.getMultiContract(web3);
+            console.log(
+                ' process.env.CONTRACT_NFT: ' + process.env.CONTRACT_NFT
+            );
+            console.log('account: ' + account);
+            const contractNFT = new web3.eth.Contract(
+                NFTAbi as any,
+                process.env.CONTRACT_NFT
+            );
+
+            const contract = new web3.eth.Contract(
+                NFTAbi as any,
+                process.env.CONTRACT_LAUNCHPAD
+            );
+            console.log(
+                'balances: ' +
+                    (await contractNFT.methods.balanceOf(account).call())
+            );
+            const balances = Number(
+                await contractNFT.methods.balanceOf(account).call()
+            );
+            console.log('balances: ' + balances);
+            let tokenIds = [];
+            let tokenInfos = [];
+
+            // ! non-nft
+            if (balances == 0) {
+                return [];
+            }
+
+            const calls = [];
+
+            for (let index = 0; index < balances; index++) {
+                calls.push({
+                    address: process.env.CONTRACT_NFT,
+                    name: 'tokenOfOwnerByIndex',
+                    params: [account, index],
+                });
+            }
+
+            tokenIds = await this.web3Service.multicall(multicallContract, NFTAbi, calls);
+            // console.log('contractNFT: ' +JSON.stringify(contractNFT))
+            console.log('CONTRACT_NFT: ' + process.env.CONTRACT_NFT);
+            console.log('balances: ' + balances);
+            console.log('multicallContract: ' + multicallContract);
+            console.log('NFTAbi: ' + NFTAbi);
+            console.log('calls: ' + JSON.stringify(calls));
+            console.log('tokenIds: ' + tokenIds);
+            tokenIds = tokenIds.map((id, index) => id.toString());
+
+            if (tokenIds.length) {
+                const callss = [];
+                tokenIds.forEach((id) => {
+                    callss.push({
+                        address: process.env.CONTRACT_NFT,
+                        name: 'getToken',
+                        params: [+id],
+                    });
+                });
+                tokenInfos = await this.web3Service.multicall(
+                    multicallContract,
+                    NFTAbi,
+                    callss
+                );
+
+                tokenInfos = tokenInfos.map((item) => ({
+                    createTimestamp: item.createTimestamp.toNumber(),
+                    tokenId: item.tokenId.toNumber(),
+                    tokenOwner: item.tokenOwner,
+                    uri:
+                        `${
+                            process.env.STATIC_SERVER_API_DEV
+                        }/nft/metadata/${item.tokenId.toNumber()}` ?? item.uri,
+                }));
+
+                return tokenInfos;
+            }
+        } catch (e) {
+            console.log('get NFT ERROR: ' + e);
+            return [];
+        }
     }
 }

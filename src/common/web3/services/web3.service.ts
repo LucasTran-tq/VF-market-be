@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import configuration from '../constants/web3.constant';
+import { getMultiContract } from '../constants/web3.constant';
 import Web3 from 'web3';
 import Common from '@ethereumjs/common';
+import { Interface } from '@ethersproject/abi';
 
 @Injectable()
 export class Web3Service {
@@ -36,4 +38,23 @@ export class Web3Service {
 
         return customNetwork;
     };
+
+    getMultiContract(web3) {
+        return getMultiContract(web3);
+    }
+
+    async multicall(multi, abi, calls) {
+        const itf = new Interface(abi);
+
+        const calldata = calls.map((call) => [
+            call.address.toLowerCase(),
+            itf.encodeFunctionData(call.name, call.params),
+        ]);
+        const { returnData } = await multi.methods.aggregate(calldata).call();
+        const res = returnData.map((call, i) =>
+            itf.decodeFunctionResult(calls[i].name, call)
+        );
+
+        return res;
+    }
 }
