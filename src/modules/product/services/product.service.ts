@@ -182,13 +182,17 @@ export class ProductService implements IProductService {
                 });
             }
 
-            tokenIds = await this.web3Service.multicall(multicallContract, NFTAbi, calls);
+            tokenIds = await this.web3Service.multicall(
+                multicallContract,
+                NFTAbi,
+                calls
+            );
             // console.log('contractNFT: ' +JSON.stringify(contractNFT))
             console.log('CONTRACT_NFT: ' + process.env.CONTRACT_NFT);
             console.log('balances: ' + balances);
             console.log('multicallContract: ' + multicallContract);
-            console.log('NFTAbi: ' + NFTAbi);
-            console.log('calls: ' + JSON.stringify(calls));
+            // console.log('NFTAbi: ' + NFTAbi);
+            // console.log('calls: ' + JSON.stringify(calls));
             console.log('tokenIds: ' + tokenIds);
             tokenIds = tokenIds.map((id, index) => id.toString());
 
@@ -201,6 +205,7 @@ export class ProductService implements IProductService {
                         params: [+id],
                     });
                 });
+
                 tokenInfos = await this.web3Service.multicall(
                     multicallContract,
                     NFTAbi,
@@ -208,7 +213,7 @@ export class ProductService implements IProductService {
                 );
 
                 tokenInfos = tokenInfos.map((item) => ({
-                    createTimestamp: item.createTimestamp.toNumber(),
+                    createTimestamp: item.nft.createTimestamp.toNumber(),
                     tokenId: item.tokenId.toNumber(),
                     tokenOwner: item.tokenOwner,
                     uri:

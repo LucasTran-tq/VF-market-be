@@ -102,7 +102,7 @@ export class ProductController {
         return data;
     }
 
-    @Response('product.my-nft')
+    // @Response('product.my-nft')
     @Get('/my-nft/:walletAddress')
     public async getMyNft(@Param('walletAddress') walletAddress: string): Promise<any> {
         console.log('============ START  getMyNft ===============');
