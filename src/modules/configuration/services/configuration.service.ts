@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateConfigurationDto } from '../dtos/create-configuration.dto';
 import { ConfigurationRepository } from '../repositories/configuration.repository';
-import { ConfigurationEntity } from '../schemas/Configuration.schema';
+import { ConfigurationEntity } from '../schemas/configuration.schema';
 
 
 @Injectable()

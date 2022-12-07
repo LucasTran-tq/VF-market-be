@@ -8,7 +8,7 @@ import { RoleEntity } from 'src/modules/role/schemas/role.schema';
 import {
     ConfigurationDocument,
     ConfigurationEntity,
-} from 'src/modules/Configuration/schemas/Configuration.schema';
+} from 'src/modules/configuration/schemas/configuration.schema';
 
 @Injectable()
 export class ConfigurationRepository

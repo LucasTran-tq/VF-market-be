@@ -16,6 +16,7 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "build:testnet": "nest build && tar -a -c -f dist.zip dist && scp -i /Users/lucas/Lucas_UIT/Projects/keypems/vfmarket-3.88.53.215.pem dist.zip ubuntu@ec2-3-88-53-215.compute-1.amazonaws.com:~/ && build_testnet.bat",
+    "build:testnet:window": "nest build && tar -a -c -f dist.zip dist package.json && scp -i C:\\playground\\keyDeploy\\vfmarket-3.88.53.215.pem .\\dist.zip ubuntu@ec2-3-88-53-215.compute-1.amazonaws.com:~/ && build_testnet.bat",
     "format": "yarn format:src && yarn format:test",
     "format:src": "prettier --write src/**/*.ts",
     "format:test": "prettier --write test/**/*.ts",

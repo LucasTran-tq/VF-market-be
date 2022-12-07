@@ -89,7 +89,7 @@ export class TransactionService {
     // @Cron('30 * * * * *')
     // @Timeout(100)
     // @Cron(CronExpression.EVERY_10_SECONDS)
-    @Cron(CronExpression.EVERY_30_SECONDS)
+    @Cron(CronExpression.EVERY_5_MINUTES)
     async handleCron() {
         if (this?.['IS_IN_CRONJOB']) {
             console.log(

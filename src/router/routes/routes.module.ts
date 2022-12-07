@@ -7,6 +7,7 @@ import { AwsModule } from 'src/common/aws/aws.module';
 import { SettingController } from 'src/common/setting/controllers/setting.controller';
 import { HealthController } from 'src/health/controllers/health.controller';
 import { HealthModule } from 'src/health/health.module';
+import { ConfigurationModule } from 'src/modules/configuration/configuration.module';
 import { PermissionModule } from 'src/modules/permission/permission.module';
 import { ProductController } from 'src/modules/product/controllers/product.controller';
 import { ProductModule } from 'src/modules/product/product.module';
@@ -38,7 +39,8 @@ import { UserModule } from 'src/modules/user/user.module';
         HttpModule,
         ProductModule,
         AuthApiModule,
-        TransactionModule
+        TransactionModule,
+        ConfigurationModule,
     ],
 })
 export class RoutesModule {}
