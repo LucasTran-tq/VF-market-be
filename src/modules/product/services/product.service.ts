@@ -211,6 +211,7 @@ export class ProductService implements IProductService {
                     NFTAbi,
                     callss
                 );
+                // console.log('tokenInfos:', tokenInfos);
 
                 tokenInfos = tokenInfos.map((item) => ({
                     createTimestamp: item.nft.createTimestamp.toNumber(),
@@ -218,8 +219,11 @@ export class ProductService implements IProductService {
                     tokenOwner: item.tokenOwner,
                     uri:
                         `${
-                            process.env.STATIC_SERVER_API_DEV
-                        }/nft/metadata/${item.tokenId.toNumber()}` ?? item.uri,
+                            process.env.STATIC_SERVER_DOMAIN
+                        }/product/metadata/${item.tokenId.toNumber()}` ??
+                        item.uri,
+                    carType: item.nft.carType,
+                    carModel: item.nft.carModel,
                 }));
 
                 return tokenInfos;

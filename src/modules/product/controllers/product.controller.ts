@@ -102,14 +102,16 @@ export class ProductController {
         return data;
     }
 
-    // @Response('product.my-nft')
+    @Response('product.my-nft')
     @Get('/my-nft/:walletAddress')
-    public async getMyNft(@Param('walletAddress') walletAddress: string): Promise<any> {
+    public async getMyNft(
+        @Param('walletAddress') walletAddress: string
+    ): Promise<any> {
         console.log('============ START  getMyNft ===============');
         console.log('address: ' + walletAddress);
-        const data = await this.productService.getMyNft(walletAddress);
-        console.log('data; ' + JSON.stringify(data));
+        const myNFTs = await this.productService.getMyNft(walletAddress);
+        console.log('myNFTs ' + JSON.stringify(myNFTs));
         console.log('============ END  getMyNft ===============');
-        return data;
+        return { data: myNFTs };
     }
 }
