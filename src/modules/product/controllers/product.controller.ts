@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     Controller,
     Get,
@@ -16,6 +17,8 @@ import { ProductListDto } from '../dtos/product.list.dto';
 import { IProductDocument } from '../interfaces/product.interface';
 import { ProductListSerialization } from '../serializations/product.list.serialization';
 import { ProductService } from '../services/product.service';
+import { Response } from 'src/common/response/decorators/response.decorator';
+import { UserProfileSerialization } from 'src/modules/user/serializations/user.profile.serialization';
 
 @ApiTags('modules.product')
 @Controller({
@@ -28,8 +31,6 @@ export class ProductController {
         private readonly productService: ProductService,
         private readonly paginationService: PaginationService
     ) {}
-
-    
 
     @ResponsePaging('product.list', {
         classSerialization: ProductListSerialization,
@@ -75,5 +76,42 @@ export class ProductController {
             availableSort,
             data: products,
         };
+    }
+
+    // @Get("/launch/:id")
+    // @Get("/my-nft/:id")
+    // @Get("/metadata/:id")
+
+    @Response(
+        'product.launch'
+        // , {
+        //     classSerialization: UserProfileSerialization,
+        // }
+    )
+    // @UserProfileGuard()
+    // @AuthJwtGuard()
+    @Get('/launch/:launchId')
+    async getLaunchPad(@Param('launchId') launchId: number) {
+        return await this.productService.findOne({ launchId });
+    }
+
+    @Response('product.metadata')
+    @Get('/metadata/:id')
+    public async getToken(@Param('id') id): Promise<any> {
+        const data = await this.productService.getMetadata(id);
+        return data;
+    }
+
+    @Response('product.my-nft')
+    @Get('/my-nft/:walletAddress')
+    public async getMyNft(
+        @Param('walletAddress') walletAddress: string
+    ): Promise<any> {
+        console.log('============ START  getMyNft ===============');
+        console.log('address: ' + walletAddress);
+        const myNFTs = await this.productService.getMyNft(walletAddress);
+        console.log('myNFTs ' + JSON.stringify(myNFTs));
+        console.log('============ END  getMyNft ===============');
+        return { data: myNFTs };
     }
 }
