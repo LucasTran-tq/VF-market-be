@@ -8,6 +8,7 @@ import {
     MinLength,
     IsObject,
     IsArray,
+    IsNumber,
 } from 'class-validator';
 
 export class ProductCreateDto {
@@ -50,4 +51,28 @@ export class ProductCreateDto {
     @IsArray()
     @Type(() => Array)
     readonly images: string[];
+
+    @ApiProperty({
+        example: 0,
+        required: true,
+    })
+    @IsNumber()
+    @IsNotEmpty()
+    readonly launchId: number;
+
+    @ApiProperty({
+        example: 0,
+        required: true,
+    })
+    @IsNumber()
+    @IsNotEmpty()
+    readonly totalCount: number;
+
+    @ApiProperty({
+        example: 0,
+        required: true,
+    })
+    @IsNumber()
+    @IsNotEmpty()
+    readonly totalSold: number;
 }

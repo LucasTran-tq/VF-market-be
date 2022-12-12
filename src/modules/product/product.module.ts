@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ProductService } from './services/product.service';
 import { ProductController } from './controllers/product.controller';
 import {
@@ -25,7 +25,8 @@ import { Web3Module } from 'src/common/web3/web3.module';
             DATABASE_CONNECTION_NAME
         ),
         Web3Module,
-        TransactionModule,
+        // TransactionModule,
+        forwardRef(() => TransactionModule),
     ],
     controllers: [ProductController],
     providers: [ProductService, ProductRepository],

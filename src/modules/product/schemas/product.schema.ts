@@ -34,6 +34,24 @@ export class ProductEntity {
         trim: true,
     })
     images: string[];
+
+    @Prop({
+        required: true,
+        lowercase: true,
+    })
+    launchId: number;
+
+    @Prop({
+        required: true,
+        lowercase: true,
+    })
+    totalCount: number;
+
+    @Prop({
+        required: true,
+        lowercase: true,
+    })
+    totalSold: number;
 }
 
 export const ProductDatabaseName = 'products';

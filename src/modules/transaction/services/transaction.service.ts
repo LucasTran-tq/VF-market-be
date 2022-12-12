@@ -7,6 +7,7 @@ import { Web3Service } from 'src/common/web3/services/web3.service';
 import { getTime, CONFIG } from 'src/common/web3/constants/web3.constant';
 import { ConfigurationService } from 'src/modules/configuration/services/configuration.service';
 import { Abi as LaunchPadABI } from 'src/common/web3/contracts/LaunchPad';
+import { ProductService } from 'src/modules/product/services/product.service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const abiDecoder = require('abi-decoder');
@@ -21,9 +22,9 @@ interface QueryTransMarket {
 export class TransactionService {
     constructor(
         private readonly transactionsRepository: TransactionRepository,
-
+        
+        private readonly productService: ProductService,
         private readonly web3Service: Web3Service,
-
         private readonly configService: ConfigurationService
     ) {}
 
@@ -82,7 +83,7 @@ export class TransactionService {
         );
         console.log('create transaction data:', data);
 
-        // await this.nftService.increaseSold(data.launchpadId);
+        await this.productService.increaseSold(+data.launchpadId);
         return data;
     }
 

@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DATABASE_CONNECTION_NAME } from 'src/common/database/constants/database.constant';
 import { Web3Module } from 'src/common/web3/web3.module';
 import { ConfigurationModule } from '../configuration/configuration.module';
+import { ProductModule } from '../product/product.module';
 import { TransactionRepository } from './repositories/transaction.repository';
 import {
     TransactionEntity,
@@ -26,6 +27,9 @@ import { TransactionController } from './transaction.controller';
         ),
         Web3Module,
         ConfigurationModule,
+        // ProductModule
+        forwardRef(() => ProductModule),
+
     ],
     controllers: [TransactionController],
     providers: [TransactionService, TransactionRepository],

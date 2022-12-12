@@ -24,12 +24,21 @@ import { Abi as NFTAbi } from 'src/common/web3/contracts/NFT';
 export class ProductService implements IProductService {
     constructor(
         private readonly productRepository: ProductRepository,
+        private readonly web3Service: Web3Service,
+        // @INject
         private readonly transactionService: TransactionService,
-        private readonly web3Service: Web3Service
     ) {}
 
     async create(
-        { name, description, price, images }: IProductCreate,
+        {
+            name,
+            description,
+            price,
+            images,
+            launchId,
+            totalCount,
+            totalSold,
+        }: IProductCreate,
         options?: IDatabaseCreateOptions
     ): Promise<ProductDocument> {
         const product: ProductEntity = {
@@ -37,6 +46,9 @@ export class ProductService implements IProductService {
             description,
             price,
             images,
+            launchId,
+            totalCount,
+            totalSold,
         };
 
         return this.productRepository.create<ProductEntity>(product, options);
@@ -232,5 +244,14 @@ export class ProductService implements IProductService {
             console.log('get NFT ERROR: ' + e);
             return [];
         }
+    }
+
+    async increaseSold(launchpadId: number) {
+        const product = await this.productRepository.findOne({ launchpadId });
+
+        await this.productRepository.updateOne(
+            { launchpadId },
+            { totalSold: product.totalSold++ }
+        );
     }
 }
