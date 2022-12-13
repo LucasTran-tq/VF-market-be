@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import axios from 'axios';
@@ -22,7 +22,8 @@ interface QueryTransMarket {
 export class TransactionService {
     constructor(
         private readonly transactionsRepository: TransactionRepository,
-        
+
+        @Inject(forwardRef(() => ProductService))
         private readonly productService: ProductService,
         private readonly web3Service: Web3Service,
         private readonly configService: ConfigurationService
@@ -87,10 +88,8 @@ export class TransactionService {
         return data;
     }
 
-    // @Cron('30 * * * * *')
-    // @Timeout(100)
     // @Cron(CronExpression.EVERY_10_SECONDS)
-    @Cron(CronExpression.EVERY_5_MINUTES)
+    @Cron(CronExpression.EVERY_MINUTE)
     async handleCron() {
         if (this?.['IS_IN_CRONJOB']) {
             console.log(
@@ -228,4 +227,221 @@ export class TransactionService {
 
         return value;
     }
+
+    async topUp1(walletAddress: string) {
+        const web3 = this.web3Service.getWeb3();
+
+        const adminPrk = process.env.ADMIN_PRIVATE_KEY;
+
+        // web3.eth.accounts
+        //     .signTransaction(
+        //         {
+        //             to: walletAddress,
+        //             value: '1000000000',
+        //             gas: 2000000,
+        //             common: {
+        //                 baseChain: 'mainnet',
+        //                 hardfork: 'petersburg',
+        //                 customChain: {
+        //                     name: 'bnb',
+        //                     networkId: 97,
+        //                     chainId: 97,
+        //                 },
+        //             },
+        //         },
+        //         adminPrk
+        //     )
+        //     .then(console.log);
+    }
+
+    async topUp(walletAddress: string) {
+        console.log('walletAddress:', walletAddress);
+
+        try {
+            const web3 = this.web3Service.getWeb3();
+
+            const adminPrk = process.env.ADMIN_PRIVATE_KEY;
+
+            await this.sendBNB(web3, adminPrk, walletAddress);
+
+
+        } catch (error) {
+            console.log('error:', error);
+        }
+    }
+
+    async sendBNB(web3: any, adminPrk: string, to: string) {
+        try {
+            const tx = {
+                to: to,
+                value: '1000000000',
+                gas: 2000000,
+                common: {
+                    baseChain: 'mainnet',
+                    hardfork: 'petersburg',
+                    customChain: {
+                        name: 'bnb',
+                        networkId: 97,
+                        chainId: 97,
+                    },
+                },
+            };
+
+            const signPromise = await web3.eth.accounts.signTransaction(
+                {
+                    to: to,
+                    value: '1000000000',
+                    gas: 2000000,
+                    common: {
+                        baseChain: 'mainnet',
+                        hardfork: 'petersburg',
+                        customChain: {
+                            name: 'bnb',
+                            networkId: 97,
+                            chainId: 97,
+                        },
+                    },
+                },
+                adminPrk
+            );
+            console.log('signPromise:', signPromise);
+
+            await web3.eth.sendSignedTransaction(signPromise.rawTransaction);
+        } catch (error) {
+            console.log('Error in sendBNB');
+            console.log('error:', error);
+        }
+    }
+    
+    // async sendVFUSD = async (
+    //     web3: any, adminPrk: string, to: string
+    //   ): Promise<{ hash: string; nonce: number }> => {
+    //     return new Promise(async (resolve) => {
+    //       const contractStar = new this.web3Config.web3.eth.Contract(
+    //         Abis721Star as AbiItem[],
+    //         this.config.get(‘app.starContractAddress’),
+    //       );
+    //       const methods = contractStar.methods.increaseAllowances(
+    //         addressWallet,
+    //         starAmount,
+    //         keywordAmount,
+    //       );
+    //       const nonce = await this.web3Config.web3.eth.getTransactionCount(
+    //         this.adminWalletAddress,
+    //         ‘pending’,
+    //       );
+    //       const gasEstimate = await methods.estimateGas({
+    //         from: this.adminWalletAddress,
+    //       });
+    //       // console.log({ gasEstimate });
+    //       this.logger.log(nonce, ‘nonce’);
+    //       const tx = {
+    //         from: this.adminWalletAddress,
+    //         to: this.starContractAddress,
+    //         data: methods.encodeABI(),
+    //         gas: gasEstimate,
+    //         nonce: nonce,
+    //       };
+    //       // Sign the transaction
+    //       console.log(‘---START signPromise---’);
+    //       const signPromise = this.web3Config.web3.eth.accounts.signTransaction(
+    //         tx,
+    //         this.adminPrivateKey,
+    //       );
+    //       signPromise
+    //         .then((signedTx) => async () => {
+    //           console.log(
+    //             ‘The hash of your transaction is: ’,
+    //             signedTx.transactionHash,
+    //           );
+    //           // signedTx.transactionHash
+    //           await this.web3Config.web3.eth.sendSignedTransaction(
+    //             signedTx.rawTransaction,
+    //             function (err, hash) {
+    //               if (!err) {
+    //                 console.log(‘The hash of your transaction is: ’, hash);
+    //                 resolve({ hash: hash, nonce: nonce });
+    //               } else {
+    //                 resolve(null);
+    //                 console.log(
+    //                   ‘Something went wrong when submitting your transaction:’,
+    //                   err,
+    //                 );
+    //               }
+    //             },
+    //           );
+    //         })
+    //         .catch((err) => {
+    //           resolve(null);
+    //           console.log(‘Promise failed:’, err);
+    //         });
+    //     });
+    //   };
+    
+    // private _addAllowancesContract = async (
+    //     addressWallet: string,
+    //     starAmount: number,
+    //     keywordAmount: number,
+    //   ): Promise<{ hash: string; nonce: number }> => {
+    //     return new Promise(async (resolve) => {
+    //       const contractStar = new this.web3Config.web3.eth.Contract(
+    //         Abis721Star as AbiItem[],
+    //         this.config.get(‘app.starContractAddress’),
+    //       );
+    //       const methods = contractStar.methods.increaseAllowances(
+    //         addressWallet,
+    //         starAmount,
+    //         keywordAmount,
+    //       );
+    //       const nonce = await this.web3Config.web3.eth.getTransactionCount(
+    //         this.adminWalletAddress,
+    //         ‘pending’,
+    //       );
+    //       const gasEstimate = await methods.estimateGas({
+    //         from: this.adminWalletAddress,
+    //       });
+    //       // console.log({ gasEstimate });
+    //       this.logger.log(nonce, ‘nonce’);
+    //       const tx = {
+    //         from: this.adminWalletAddress,
+    //         to: this.starContractAddress,
+    //         data: methods.encodeABI(),
+    //         gas: gasEstimate,
+    //         nonce: nonce,
+    //       };
+    //       // Sign the transaction
+    //       console.log(‘---START signPromise---’);
+    //       const signPromise = this.web3Config.web3.eth.accounts.signTransaction(
+    //         tx,
+    //         this.adminPrivateKey,
+    //       );
+    //       signPromise
+    //         .then((signedTx) => async () => {
+    //           console.log(
+    //             ‘The hash of your transaction is: ’,
+    //             signedTx.transactionHash,
+    //           );
+    //           // signedTx.transactionHash
+    //           await this.web3Config.web3.eth.sendSignedTransaction(
+    //             signedTx.rawTransaction,
+    //             function (err, hash) {
+    //               if (!err) {
+    //                 console.log(‘The hash of your transaction is: ’, hash);
+    //                 resolve({ hash: hash, nonce: nonce });
+    //               } else {
+    //                 resolve(null);
+    //                 console.log(
+    //                   ‘Something went wrong when submitting your transaction:’,
+    //                   err,
+    //                 );
+    //               }
+    //             },
+    //           );
+    //         })
+    //         .catch((err) => {
+    //           resolve(null);
+    //           console.log(‘Promise failed:’, err);
+    //         });
+    //     });
+    //   };
 }

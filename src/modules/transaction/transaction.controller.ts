@@ -2,10 +2,24 @@ import { Controller, Body, Post, Get, Query, Param } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { QueryTransactionDto } from './dto/query-transaction.dto';
 import { TransactionService } from './services/transaction.service';
+import { Response } from 'src/common/response/decorators/response.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('transactions')
+@ApiTags('modules.transaction')
+@Controller({
+    version: '1',
+    path: '/transaction',
+})
+@Controller('transaction')
 export class TransactionController {
     constructor(private readonly transactionsService: TransactionService) {}
+
+    @Get('topUp/:walletAddress')
+    @Response('transaction.topUp')
+
+    async topUp(@Param('walletAddress') walletAddress: string) {
+        return await this.transactionsService.topUp(walletAddress);
+    }
 
     // @Get()
     // async get(@Query() query: QueryTransactionDto) {
