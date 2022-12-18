@@ -32,7 +32,7 @@ export class UserCreateDto {
     @MinLength(1)
     @MaxLength(30)
     @Type(() => String)
-    readonly firstName: string;
+    readonly firstName?: string;
 
     @ApiProperty({
         example: faker.name.lastName(),
@@ -43,7 +43,7 @@ export class UserCreateDto {
     @MinLength(1)
     @MaxLength(30)
     @Type(() => String)
-    readonly lastName: string;
+    readonly lastName?: string;
 
     @ApiProperty({
         example: faker.phone.number('62812#########'),
@@ -80,4 +80,10 @@ export class UserCreateDto {
         required: false,
     })
     readonly photo?: string;
+
+    @ApiProperty({
+        required: false,
+        example: faker.address.country(),
+    })
+    readonly address?: string;
 }

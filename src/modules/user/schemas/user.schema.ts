@@ -83,6 +83,11 @@ export class UserEntity {
     })
     photo?: string;
 
+    @Prop({
+        required: false,
+    })
+    address?: string;
+
     // @Prop({
     //     required: false,
     //     _id: false,

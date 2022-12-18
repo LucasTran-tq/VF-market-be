@@ -4,6 +4,9 @@ import { QueryTransactionDto } from './dto/query-transaction.dto';
 import { TransactionService } from './services/transaction.service';
 import { Response } from 'src/common/response/decorators/response.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthJwtGuard } from 'src/common/auth/decorators/auth.jwt.decorator';
+import { ENUM_LOGGER_ACTION } from 'src/common/logger/constants/logger.enum.constant';
+import { Logger } from 'src/common/logger/decorators/logger.decorator';
 
 @ApiTags('modules.transaction')
 @Controller({
@@ -16,7 +19,8 @@ export class TransactionController {
 
     @Get('topUp/:walletAddress')
     @Response('transaction.topUp')
-
+    @Logger(ENUM_LOGGER_ACTION.TOPUP, { tags: ['TOPUP', 'walletAddress'] })
+    @AuthJwtGuard()
     async topUp(@Param('walletAddress') walletAddress: string) {
         return await this.transactionsService.topUp(walletAddress);
     }

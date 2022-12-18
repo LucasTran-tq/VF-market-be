@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import {
@@ -12,6 +13,7 @@ import {
     NotFoundException,
     Patch,
     Post,
+    Put,
     UploadedFile,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -48,6 +50,7 @@ import { GetUser } from 'src/modules/user/decorators/user.decorator';
 import { UserProfileGuard } from 'src/modules/user/decorators/user.public.decorator';
 import { UserChangePasswordDto } from 'src/modules/user/dtos/user.change-password.dto';
 import { UserLoginDto } from 'src/modules/user/dtos/user.login.dto';
+import { UserUpdateDto, UserUpdateProfileDto } from 'src/modules/user/dtos/user.update.dto';
 import {
     IUserCheckExist,
     IUserDocument,
@@ -89,36 +92,14 @@ export class UserController {
     @Response('user.upload', { excludeRequestBodyJson: true })
     @UserProfileGuard()
     @AuthJwtGuard()
-    @AuthApiKey()
-    @RequestValidateUserAgent()
-    @RequestValidateTimestamp()
-    @UploadFileSingle('file')
     @HttpCode(HttpStatus.OK)
-    @Post('/profile/upload')
-    async upload(
+    @Put('/profile/update')
+    async updateProfile(
         @GetUser() user: IUserDocument,
-        @UploadedFile(FileRequiredPipe, FileSizeImagePipe, FileTypeImagePipe)
-        file: IFile
-    ): Promise<void> {
-        const filename: string = file.originalname;
-        const content: Buffer = file.buffer;
-        const mime: string = filename
-            .substring(filename.lastIndexOf('.') + 1, filename.length)
-            .toUpperCase();
-
-        const path = await this.userService.createRandomFilename();
-
+        @Body() userUpdateProfileDto: UserUpdateProfileDto
+        ): Promise<void> {
         try {
-            const aws: AwsS3Serialization =
-                await this.awsService.putItemInBucket(
-                    `${path.filename}.${mime}`,
-                    content,
-                    {
-                        path: `${path.path}/${user._id}`,
-                    }
-                );
-
-            await this.userService.updatePhoto(user._id, aws);
+            await this.userService.updateOneById(user._id, userUpdateProfileDto);
         } catch (err: any) {
             throw new InternalServerErrorException({
                 statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
@@ -188,8 +169,6 @@ export class UserController {
 
         return;
     }
-
-    
 
     @Response('user.refresh', { classSerialization: UserLoginSerialization })
     @AuthRefreshJwtGuard()
@@ -261,6 +240,50 @@ export class UserController {
             refreshToken,
         };
     }
+
+    // @Response('user.upload', { excludeRequestBodyJson: true })
+    // @UserProfileGuard()
+    // @AuthJwtGuard()
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
+    // @UploadFileSingle('file')
+    // @HttpCode(HttpStatus.OK)
+    // @Post('/profile/upload')
+    // async upload(
+    //     @GetUser() user: IUserDocument,
+    //     @UploadedFile(FileRequiredPipe, FileSizeImagePipe, FileTypeImagePipe)
+    //     file: IFile
+    // ): Promise<void> {
+    //     const filename: string = file.originalname;
+    //     const content: Buffer = file.buffer;
+    //     const mime: string = filename
+    //         .substring(filename.lastIndexOf('.') + 1, filename.length)
+    //         .toUpperCase();
+
+    //     const path = await this.userService.createRandomFilename();
+
+    //     try {
+    //         const aws: AwsS3Serialization =
+    //             await this.awsService.putItemInBucket(
+    //                 `${path.filename}.${mime}`,
+    //                 content,
+    //                 {
+    //                     path: `${path.path}/${user._id}`,
+    //                 }
+    //             );
+
+    //         await this.userService.updatePhoto(user._id, aws);
+    //     } catch (err: any) {
+    //         throw new InternalServerErrorException({
+    //             statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+    //             message: 'http.serverError.internalServerError',
+    //             error: err.message,
+    //         });
+    //     }
+
+    //     return;
+    // }
 
     // @Response('user.login', {
     //     classSerialization: UserLoginSerialization,
@@ -389,7 +412,6 @@ export class UserController {
     //         });
     //     }
     // }
-
 
     // @Response('user.login', {
     //     classSerialization: UserLoginSerialization,

@@ -7,7 +7,9 @@ import { Web3Service } from 'src/common/web3/services/web3.service';
 import { getTime, CONFIG } from 'src/common/web3/constants/web3.constant';
 import { ConfigurationService } from 'src/modules/configuration/services/configuration.service';
 import { Abi as LaunchPadABI } from 'src/common/web3/contracts/LaunchPad';
+import { Abi as VFUSDABI } from 'src/common/web3/contracts/Token';
 import { ProductService } from 'src/modules/product/services/product.service';
+import Web3 from 'web3';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const abiDecoder = require('abi-decoder');
@@ -228,32 +230,6 @@ export class TransactionService {
         return value;
     }
 
-    async topUp1(walletAddress: string) {
-        const web3 = this.web3Service.getWeb3();
-
-        const adminPrk = process.env.ADMIN_PRIVATE_KEY;
-
-        // web3.eth.accounts
-        //     .signTransaction(
-        //         {
-        //             to: walletAddress,
-        //             value: '1000000000',
-        //             gas: 2000000,
-        //             common: {
-        //                 baseChain: 'mainnet',
-        //                 hardfork: 'petersburg',
-        //                 customChain: {
-        //                     name: 'bnb',
-        //                     networkId: 97,
-        //                     chainId: 97,
-        //                 },
-        //             },
-        //         },
-        //         adminPrk
-        //     )
-        //     .then(console.log);
-    }
-
     async topUp(walletAddress: string) {
         console.log('walletAddress:', walletAddress);
 
@@ -263,8 +239,7 @@ export class TransactionService {
             const adminPrk = process.env.ADMIN_PRIVATE_KEY;
 
             await this.sendBNB(web3, adminPrk, walletAddress);
-
-
+            await this.sendVFUSD(web3, adminPrk, walletAddress);
         } catch (error) {
             console.log('error:', error);
         }
@@ -274,7 +249,7 @@ export class TransactionService {
         try {
             const tx = {
                 to: to,
-                value: '1000000000',
+                value:  Web3.utils.toWei(0.01 + ''),
                 gas: 2000000,
                 common: {
                     baseChain: 'mainnet',
@@ -288,20 +263,7 @@ export class TransactionService {
             };
 
             const signPromise = await web3.eth.accounts.signTransaction(
-                {
-                    to: to,
-                    value: '1000000000',
-                    gas: 2000000,
-                    common: {
-                        baseChain: 'mainnet',
-                        hardfork: 'petersburg',
-                        customChain: {
-                            name: 'bnb',
-                            networkId: 97,
-                            chainId: 97,
-                        },
-                    },
-                },
+                tx,
                 adminPrk
             );
             console.log('signPromise:', signPromise);
@@ -312,72 +274,49 @@ export class TransactionService {
             console.log('error:', error);
         }
     }
-    
-    // async sendVFUSD = async (
-    //     web3: any, adminPrk: string, to: string
-    //   ): Promise<{ hash: string; nonce: number }> => {
-    //     return new Promise(async (resolve) => {
-    //       const contractStar = new this.web3Config.web3.eth.Contract(
-    //         Abis721Star as AbiItem[],
-    //         this.config.get(‘app.starContractAddress’),
-    //       );
-    //       const methods = contractStar.methods.increaseAllowances(
-    //         addressWallet,
-    //         starAmount,
-    //         keywordAmount,
-    //       );
-    //       const nonce = await this.web3Config.web3.eth.getTransactionCount(
-    //         this.adminWalletAddress,
-    //         ‘pending’,
-    //       );
-    //       const gasEstimate = await methods.estimateGas({
-    //         from: this.adminWalletAddress,
-    //       });
-    //       // console.log({ gasEstimate });
-    //       this.logger.log(nonce, ‘nonce’);
-    //       const tx = {
-    //         from: this.adminWalletAddress,
-    //         to: this.starContractAddress,
-    //         data: methods.encodeABI(),
-    //         gas: gasEstimate,
-    //         nonce: nonce,
-    //       };
-    //       // Sign the transaction
-    //       console.log(‘---START signPromise---’);
-    //       const signPromise = this.web3Config.web3.eth.accounts.signTransaction(
-    //         tx,
-    //         this.adminPrivateKey,
-    //       );
-    //       signPromise
-    //         .then((signedTx) => async () => {
-    //           console.log(
-    //             ‘The hash of your transaction is: ’,
-    //             signedTx.transactionHash,
-    //           );
-    //           // signedTx.transactionHash
-    //           await this.web3Config.web3.eth.sendSignedTransaction(
-    //             signedTx.rawTransaction,
-    //             function (err, hash) {
-    //               if (!err) {
-    //                 console.log(‘The hash of your transaction is: ’, hash);
-    //                 resolve({ hash: hash, nonce: nonce });
-    //               } else {
-    //                 resolve(null);
-    //                 console.log(
-    //                   ‘Something went wrong when submitting your transaction:’,
-    //                   err,
-    //                 );
-    //               }
-    //             },
-    //           );
-    //         })
-    //         .catch((err) => {
-    //           resolve(null);
-    //           console.log(‘Promise failed:’, err);
-    //         });
-    //     });
-    //   };
-    
+
+    async sendVFUSD(web3: any, adminPrk: string, to: string) {
+        try {
+            const contractVFUSD = new web3.eth.Contract(
+                VFUSDABI as any,
+                process.env.BUSD_ADDRESS,
+                {
+                    from: process.env.ADMIN_ADDRESS,
+                }
+            );
+
+            const methods = contractVFUSD.methods.transfer(
+                to,
+                Web3.utils.toWei(100000 + '')
+            );
+            const gasEstimate = await methods.estimateGas({
+                from: process.env.ADMIN_ADDRESS,
+            });
+            console.log({ gasEstimate });
+
+            const tx = {
+                from: process.env.ADMIN_ADDRESS,
+                to: process.env.BUSD_ADDRESS,
+                data: methods.encodeABI(),
+                gas: gasEstimate,
+                // nonce: nonce,
+            };
+
+            // Sign the transaction
+            console.log('---START signPromise---');
+            const signPromise = await web3.eth.accounts.signTransaction(
+                tx,
+                adminPrk
+            );
+            console.log('signPromise:', signPromise);
+
+            // signedTx.transactionHash
+            await web3.eth.sendSignedTransaction(signPromise.rawTransaction);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     // private _addAllowancesContract = async (
     //     addressWallet: string,
     //     starAmount: number,
