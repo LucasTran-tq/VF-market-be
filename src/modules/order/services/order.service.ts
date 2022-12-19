@@ -14,58 +14,44 @@ import { TransactionService } from 'src/modules/transaction/services/transaction
 import { Abi as NFTAbi } from 'src/common/web3/contracts/NFT';
 import { OrderDocument, OrderEntity } from '../schemas/order.schema';
 import { OrderRepository } from '../repositories/order.repository';
+import { IOrderCreate } from '../interfaces/order.interface';
+import { UserRepository } from 'src/modules/user/repositories/user.repository';
+import { ProductRepository } from 'src/modules/product/repositories/product.repository';
+import { UserService } from 'src/modules/user/services/user.service';
+import { ProductService } from 'src/modules/product/services/product.service';
+import { UserDocument } from 'src/modules/user/schemas/user.schema';
+import { ProductDocument } from 'src/modules/Product/schemas/product.schema';
 
 @Injectable()
-export class OrderService implements IOrderService {
+export class OrderService {
     constructor(
         private readonly orderRepository: OrderRepository,
-        private readonly web3Service: Web3Service,
-        // @INject
-        private readonly transactionService: TransactionService
+        private readonly userService: UserService,
+        private readonly productService: ProductService
     ) {}
 
     async create(
-        {
-            name,
-            description,
-            price,
-            images,
-            launchId,
-            totalCount,
-            totalSold,
-        }: IOrderCreate,
+        { userId, productId, walletAddress }: IOrderCreate,
         options?: IDatabaseCreateOptions
     ): Promise<OrderDocument> {
+        const user: UserDocument = await this.userService.findOneById(userId);
+        console.log('user:', user);
+        const product: ProductDocument = await this.productService.findOneById(
+            productId
+        );
+        console.log('product:', product);
+
         const order: OrderEntity = {
-            name,
-            description,
-            price,
-            images,
-            launchId,
-            totalCount,
-            totalSold,
+            user: user._id,
+            product: product._id,
+            address: user.address,
+            walletAddress,
+            tokenId: 1,
+            isPaid: false,
         };
+        console.log('order:', order);
 
         return this.orderRepository.create<OrderEntity>(order, options);
-    }
-
-    async checkExist(
-        name: string,
-        options?: IDatabaseExistOptions
-    ): Promise<IOrderCheckExist> {
-        const existOrder: boolean = await this.orderRepository.exists(
-            {
-                name: {
-                    $regex: new RegExp(name),
-                    $options: 'i',
-                },
-            },
-            options
-        );
-
-        return {
-            name: existProduct,
-        };
     }
 
     async findAll<T>(

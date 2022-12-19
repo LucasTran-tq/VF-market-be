@@ -50,10 +50,9 @@ export class OrderEntity {
 
     @Prop({
         required: true,
-        lowercase: true,
-        trim: true,
+        default: false,
     })
-    status: string;
+    isPaid: boolean;
 }
 
 export const OrderDatabaseName = 'orders';
@@ -63,9 +62,7 @@ export type OrderDocument = OrderEntity & Document;
 
 // Hooks
 OrderSchema.pre<OrderDocument>('save', function (next) {
-    // this.email = this.email?.toLowerCase();
-    // this.firstName = this.firstName?.toLowerCase();
-    // this.lastName = this.lastName?.toLowerCase();
-
     next();
 });
+
+export enum OrderStatus {}

@@ -1,35 +1,36 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { ProductService } from './services/product.service';
-import { ProductController } from './controllers/product.controller';
+import { OrderService } from './services/order.service';
 import {
-    ProductDatabaseName,
-    ProductEntity,
-    ProductSchema,
+    OrderDatabaseName,
+    OrderEntity,
+    OrderSchema,
 } from './schemas/order.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DATABASE_CONNECTION_NAME } from 'src/common/database/constants/database.constant';
-import { ProductRepository } from './repositories/order.repository';
+import { OrderRepository } from './repositories/order.repository';
 import { TransactionModule } from '../transaction/transaction.module';
 import { Web3Module } from 'src/common/web3/web3.module';
+import { OrderController } from './controllers/order.controller';
+import { UserModule } from '../user/user.module';
+import { ProductModule } from '../product/product.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature(
             [
                 {
-                    name: ProductEntity.name,
-                    schema: ProductSchema,
-                    collection: ProductDatabaseName,
+                    name: OrderEntity.name,
+                    schema: OrderSchema,
+                    collection: OrderDatabaseName,
                 },
             ],
             DATABASE_CONNECTION_NAME
         ),
-        Web3Module,
-        // TransactionModule,
-        forwardRef(() => TransactionModule),
+        UserModule,
+        ProductModule,
     ],
-    controllers: [ProductController],
-    providers: [ProductService, ProductRepository],
-    exports: [ProductService],
+    controllers: [OrderController],
+    providers: [OrderService, OrderRepository],
+    exports: [OrderService],
 })
-export class ProductModule {}
+export class OrderModule {}
