@@ -58,16 +58,16 @@ export class Web3Service {
         return res;
     }
 
-    async getTokenLength() {
-        const web3 = this.getWeb3()
+    // async getTokenLength() {
+    //     const web3 = this.getWeb3()
 
-        const contract = new web3.eth.Contract(
-            LaunchPadABI as any,
-            process.env.CONTRACT_LAUNCHPAD
-        );
+    //     const contract = new web3.eth.Contract(
+    //         LaunchPadABI as any,
+    //         process.env.CONTRACT_LAUNCHPAD
+    //     );
 
         
 
-        return res;
-    }
+    //     return res;
+    // }
 }

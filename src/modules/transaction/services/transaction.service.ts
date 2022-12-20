@@ -10,6 +10,7 @@ import { Abi as LaunchPadABI } from 'src/common/web3/contracts/LaunchPad';
 import { Abi as VFUSDABI } from 'src/common/web3/contracts/Token';
 import { ProductService } from 'src/modules/product/services/product.service';
 import Web3 from 'web3';
+import { IDatabaseFindAllOptions, IDatabaseOptions } from 'src/common/database/interfaces/database.interface';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const abiDecoder = require('abi-decoder');
@@ -30,6 +31,20 @@ export class TransactionService {
         private readonly web3Service: Web3Service,
         private readonly configService: ConfigurationService
     ) {}
+
+    async findAll<T>(
+        find?: Record<string, any>,
+        options?: IDatabaseFindAllOptions
+    ): Promise<T[]> {
+        return this.transactionsRepository.findAll<T>(find, options);
+    }
+
+    async getTotal(
+        find?: Record<string, any>,
+        options?: IDatabaseOptions
+    ): Promise<number> {
+        return this.transactionsRepository.getTotal(find, options);
+    }
 
     async getLaunchPadByToken(tokenId: number) {
         try {
@@ -249,7 +264,7 @@ export class TransactionService {
         try {
             const tx = {
                 to: to,
-                value:  Web3.utils.toWei(0.01 + ''),
+                value: Web3.utils.toWei(0.01 + ''),
                 gas: 2000000,
                 common: {
                     baseChain: 'mainnet',

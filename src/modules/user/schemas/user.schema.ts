@@ -88,6 +88,11 @@ export class UserEntity {
     })
     address?: string;
 
+    @Prop({
+        required: false,
+    })
+    walletAddress?: string;
+
     // @Prop({
     //     required: false,
     //     _id: false,

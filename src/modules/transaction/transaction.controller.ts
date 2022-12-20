@@ -2,11 +2,18 @@ import { Controller, Body, Post, Get, Query, Param } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { QueryTransactionDto } from './dto/query-transaction.dto';
 import { TransactionService } from './services/transaction.service';
-import { Response } from 'src/common/response/decorators/response.decorator';
+import {
+    Response,
+    ResponsePaging,
+} from 'src/common/response/decorators/response.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthJwtGuard } from 'src/common/auth/decorators/auth.jwt.decorator';
 import { ENUM_LOGGER_ACTION } from 'src/common/logger/constants/logger.enum.constant';
 import { Logger } from 'src/common/logger/decorators/logger.decorator';
+import { TransactionListDto } from './dto/transaction.list.dto';
+import { IResponsePaging } from 'src/common/response/interfaces/response.interface';
+import { PaginationService } from 'src/common/pagination/services/pagination.service';
+import { ITransactionDocument } from './interfaces/product.interface';
 
 @ApiTags('modules.transaction')
 @Controller({
@@ -15,7 +22,10 @@ import { Logger } from 'src/common/logger/decorators/logger.decorator';
 })
 @Controller('transaction')
 export class TransactionController {
-    constructor(private readonly transactionsService: TransactionService) {}
+    constructor(
+        private readonly transactionsService: TransactionService,
+        private readonly paginationService: PaginationService
+    ) {}
 
     @Get('topUp/:walletAddress')
     @Response('transaction.topUp')
@@ -25,60 +35,47 @@ export class TransactionController {
         return await this.transactionsService.topUp(walletAddress);
     }
 
-    // @Get()
-    // async get(@Query() query: QueryTransactionDto) {
-    //   try {
-    //     const data = await this.transactionsService.findAll(query);
+    @ResponsePaging('transaction.list', {
+        // classSerialization: ProductListSerialization,
+    })
+    // @AuthAdminJwtGuard(ENUM_AUTH_PERMISSIONS.USER_READ)
+    @Get('/list')
+    async list(
+        @Query()
+        {
+            page,
+            perPage,
+            sort,
+            search,
+            availableSort,
+            availableSearch,
+        }: TransactionListDto
+    ): Promise<IResponsePaging> {
+        const skip: number = await this.paginationService.skip(page, perPage);
+        const find: Record<string, any> = {
+            ...search,
+        };
 
-    //     return {
-    //       status: 200,
-    //       ...data,
-    //     };
-    //   } catch (e) {
-    //     console.log('e:', e);
+        const transactions: ITransactionDocument[] =
+            await this.transactionsService.findAll(find, {
+                limit: perPage,
+                skip: skip,
+                sort,
+            });
+        const totalData: number = await this.transactionsService.getTotal(find);
+        const totalPage: number = await this.paginationService.totalPage(
+            totalData,
+            perPage
+        );
 
-    //     return {
-    //       status: 500,
-    //       message: 'Something went wrong',
-    //     };
-    //   }
-    // }
-
-    // @Get('/market')
-    // async detail(@Query() query) {
-    //   try {
-    //     const data = await this.transactionsService.findTransMarket(query);
-
-    //     return {
-    //       status: 200,
-    //       ...data,
-    //     };
-    //   } catch (e) {
-    //     console.log('e:', e);
-
-    //     return {
-    //       status: 500,
-    //       message: 'Something went wrong',
-    //     };
-    //   }
-    // }
-
-    // @Post()
-    // async create(@Body() createTransactionDto: CreateTransactionDto) {
-    //   try {
-    //     const data = await this.transactionsService.createTransaction(
-    //       createTransactionDto,
-    //     );
-
-    //     return {
-    //       status: 200,
-    //       data,
-    //     };
-    //   } catch (e) {
-    //     return {
-    //       status: 500,
-    //       message: 'Something went wrong',
-    //     };
-    //   }
-    // }
+        return {
+            totalData,
+            totalPage,
+            currentPage: page,
+            perPage,
+            availableSearch,
+            availableSort,
+            data: transactions,
+        };
+    }
 }
