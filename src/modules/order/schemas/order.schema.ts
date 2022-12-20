@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ProductEntity } from 'src/modules/Product/schemas/product.schema';
+import { ProductEntity } from 'src/modules/product/schemas/product.schema';
 import { TransactionEntity } from 'src/modules/transaction/schemas/transaction.schema';
 import { UserEntity } from 'src/modules/user/schemas/user.schema';
 

@@ -20,7 +20,7 @@ import { ProductRepository } from 'src/modules/product/repositories/product.repo
 import { UserService } from 'src/modules/user/services/user.service';
 import { ProductService } from 'src/modules/product/services/product.service';
 import { UserDocument } from 'src/modules/user/schemas/user.schema';
-import { ProductDocument } from 'src/modules/Product/schemas/product.schema';
+import { ProductDocument } from 'src/modules/product/schemas/product.schema';
 
 @Injectable()
 export class OrderService {
