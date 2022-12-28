@@ -47,7 +47,7 @@ lerna-debug.log*
 !.yarn/versions
 
 # environment
-# .env*
+.env*
 # !.env.example
 config.yaml
 config.yml
