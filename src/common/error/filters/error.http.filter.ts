@@ -146,7 +146,7 @@ export class ErrorHttpFilter implements ExceptionFilter {
                 .setHeader('x-custom-lang', customLang)
                 .setHeader('x-timestamp', __timestamp)
                 .setHeader('x-timezone', __timezone)
-                .setHeader('x-request-id', __requestId)
+                // .setHeader('x-request-id', __requestId)
                 .setHeader('x-version', __version)
                 .setHeader('x-repo-version', __repoVersion)
                 .status(statusHttp)
@@ -184,7 +184,7 @@ export class ErrorHttpFilter implements ExceptionFilter {
                 .setHeader('x-custom-lang', customLang)
                 .setHeader('x-timestamp', __timestamp)
                 .setHeader('x-timezone', __timezone)
-                .setHeader('x-request-id', __requestId)
+                // .setHeader('x-request-id', __requestId)
                 .setHeader('x-version', __version)
                 .setHeader('x-repo-version', __repoVersion);
 

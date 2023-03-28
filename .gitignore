@@ -48,7 +48,7 @@ lerna-debug.log*
 
 # environment
 .env*
-# !.env.example
+!.env.example
 config.yaml
 config.yml
 

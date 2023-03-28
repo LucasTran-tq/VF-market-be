@@ -38,7 +38,7 @@ export default registerAs(
                 'x-timestamp',
                 'x-api-key',
                 'x-timezone',
-                'x-request-id',
+                // 'x-request-id',
                 'x-version',
                 'x-repo-version',
                 'X-Response-Time',
