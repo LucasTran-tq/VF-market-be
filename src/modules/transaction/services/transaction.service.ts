@@ -106,7 +106,7 @@ export class TransactionService {
     }
 
     // @Cron(CronExpression.EVERY_10_SECONDS)
-    @Cron(CronExpression.EVERY_MINUTE)
+    @Cron(CronExpression.EVERY_10_SECONDS)
     async handleCron() {
         if (this?.['IS_IN_CRONJOB']) {
             console.log(
@@ -161,9 +161,13 @@ export class TransactionService {
                 // endblock: +lastBlock + 9999,
             },
         });
+        console.log("***** response *****");
+        
         // console.log('response:', response);
 
         abiDecoder.addABI(LaunchPadABI);
+
+        console.log("***** abiDecoder *****");
 
         const arr = [];
 

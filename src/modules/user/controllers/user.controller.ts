@@ -81,14 +81,14 @@ export class UserController {
     })
     @UserProfileGuard()
     @AuthJwtGuard()
-    // @AuthApiKey()
-    // @RequestValidateUserAgent()
-    // @RequestValidateTimestamp()
     @Get('/profile')
     async profile(@GetUser() user: IUserDocument): Promise<IResponse> {
         return user;
     }
 
+    // @AuthApiKey()
+    // @RequestValidateUserAgent()
+    // @RequestValidateTimestamp()
     @Response('user.upload', { excludeRequestBodyJson: true })
     @UserProfileGuard()
     @AuthJwtGuard()
