@@ -147,10 +147,9 @@ export class TransactionService {
     async fetchTrans() {
         const lastBlock = await this.configService.findOne(CONFIG.LAST_BLOCK);
         console.log('lastBlock:', lastBlock.value);
-        // console.log("lastBlock:", lastBlock);
-        // console.log('lastBlock:', lastBlock)
-
+        
         const response = await axios.get(process.env.DOMAIN_BSC, {
+            headers: { "Accept-Encoding": "gzip,deflate,compress" },
             params: {
                 address: process.env.CONTRACT_LAUNCHPAD,
                 apikey: process.env.BSC_API_KEY,
@@ -161,13 +160,8 @@ export class TransactionService {
                 // endblock: +lastBlock + 9999,
             },
         });
-        console.log("***** response *****");
         
-        // console.log('response:', response);
-
         abiDecoder.addABI(LaunchPadABI);
-
-        console.log("***** abiDecoder *****");
 
         const arr = [];
 

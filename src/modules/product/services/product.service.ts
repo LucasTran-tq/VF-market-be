@@ -223,7 +223,7 @@ export class ProductService implements IProductService {
                     NFTAbi,
                     callss
                 );
-                // console.log('tokenInfos:', tokenInfos);
+                console.log('tokenInfos:', tokenInfos);
 
                 tokenInfos = tokenInfos.map((item) => ({
                     createTimestamp: item.nft.createTimestamp.toNumber(),
